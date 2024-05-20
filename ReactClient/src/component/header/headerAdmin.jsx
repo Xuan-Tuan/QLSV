@@ -1,14 +1,12 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 import Logo from "../../assets/LOGO.png";
-import UserProfile from "../account/UserProfile";
+import UserProfile from "../account/userProfile";
 import PropTypes from "prop-types";
-
 HeaderAdmin.PropTypes = {
   currentUser: PropTypes.object,
 };
 
-export default HeaderAdmin  (currentUser) {
+export default function HeaderAdmin(currentUser) {
   const navLinkClass = ({ isActive }) =>
     isActive ? "text-red-500" : "text-white";
 
@@ -26,28 +24,27 @@ export default HeaderAdmin  (currentUser) {
         </div>
       </div>
       <nav className="text-white flex flex-row items-center text-xs lg:text-base font-bold space-x-12">
-        <NavLink to="/Admin/ManageLectures" className={navLinkClass}>
+        <NavLink to="/admin/manageLectures" className={navLinkClass}>
           Giáo viên
         </NavLink>
-        <NavLink to="/Admin/ManageStudent" className={navLinkClass}>
+        <NavLink to="/admin/manageStudent" className={navLinkClass}>
           Sinh viên
         </NavLink>
-        <NavLink to="/Admin/ManageParent" className={navLinkClass}>
+        <NavLink to="/admin/manageParent" className={navLinkClass}>
           Phụ huynh
         </NavLink>
-        <NavLink to="/Admin/ManageSubjects" className={navLinkClass}>
+        <NavLink to="/admin/manageSubjects" className={navLinkClass}>
           Môn học
         </NavLink>
-        <NavLink to="/Admin/Notification" className={navLinkClass}>
-          Thông báo
+        <NavLink to="/admin/manageroom" className={navLinkClass}>
+          Phòng học
         </NavLink>
       </nav>
       <div className="ml-6 mr-12">
-        <NavLink to="/Admin/Account">
+        <NavLink to="/admin/account">
           <UserProfile />
         </NavLink>
       </div>
     </header>
   );
-};
-
+}

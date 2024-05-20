@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useEffect, useState } from "react";
-import { doGetStudentInfo } from "../controller/firestoreController";
+import { doGetStudentInfo } from "../../controller/firestoreController";
 
 LecListStudentPage.propTypes = {
   studentList: PropTypes.array.isRequired,
@@ -8,7 +8,7 @@ LecListStudentPage.propTypes = {
   week: PropTypes.number.isRequired,
 };
 
-export function LecListStudentPage({ studentList, courseCode, week }) {
+export default function LecListStudentPage({ studentList, courseCode, week }) {
   const [studentInfo, setStudentInfo] = useState([]);
   useEffect(() => {
     const studentName = async () => {

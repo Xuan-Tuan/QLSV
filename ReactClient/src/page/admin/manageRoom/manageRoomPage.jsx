@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { doAddRoom } from "../controller/firestoreController";
+import { doAddRoom } from "../../../controller/firestoreController";
 import { onSnapshot, collection, query } from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+import { db } from "../../../config/firebaseConfig";
 
-export default function AddRoomPage() {
+export default function ManageRoomPage() {
   const [room, setRoom] = useState([]);
   const [roomList, setRoomList] = useState([]);
 

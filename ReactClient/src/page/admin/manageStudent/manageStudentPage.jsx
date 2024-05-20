@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { db } from "../config/firebaseConfig";
+import { db } from "../../../config/firebaseConfig";
 import { onSnapshot, collection, query } from "firebase/firestore";
 import StudentListComponent from "./studentListComponent";
 
-export default function AddStudentPage() {
+export default function ManageStudentPage() {
   const [students, setStudents] = useState([]);
   const [parents, setParents] = useState([]);
 

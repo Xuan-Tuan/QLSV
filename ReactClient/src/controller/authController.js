@@ -1,7 +1,7 @@
 import { auth } from "../config/firebaseConfig";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { useContext } from "react";
-import { AuthContext } from "../component/authContext";
+import { AuthContext } from "../authContext/authContext";
 
 const useAuth = () => {
   return useContext(AuthContext);

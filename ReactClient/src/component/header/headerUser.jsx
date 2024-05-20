@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import Logo from "../../assets/LOGO.png";
 import { NavLink } from "react-router-dom";
-import UserProfile from "../Account/UserProfile";
+import UserProfile from "../account/userProfile";
+// import { useAuth } from "../../controller/authController";
 
-const HeaderUser = () => {
+export default function HeaderUser() {
   const [role, setRole] = useState(localStorage.getItem("role"));
 
   useEffect(() => {
@@ -12,6 +13,9 @@ const HeaderUser = () => {
       setRole(storedRole);
     }
   }, [role]);
+
+  // const { currentUser } = useAuth();
+  // console.log("Thông tin người dùng hiện tại ==> ", currentUser);
 
   return (
     <header className="bg-uit h-[70px] text-white flex items-center justify-between p-2">
@@ -30,7 +34,7 @@ const HeaderUser = () => {
         <nav className="text-white flex flex-row items-center justify-between text-xs lg:text-base font-bold">
           <div className="mr-16">
             <NavLink
-              to={`/${role}/ListSubject`}
+              to={`/${role}/listSubject`}
               className={({ isActive }) =>
                 isActive ? "text-red-500" : "text-white"
               }
@@ -40,7 +44,7 @@ const HeaderUser = () => {
           </div>
           <div className="mr-16">
             <NavLink
-              to={`/${role}/Notification`}
+              to={`/${role}/notification`}
               className={({ isActive }) =>
                 isActive ? "text-red-500" : "text-white"
               }
@@ -50,7 +54,7 @@ const HeaderUser = () => {
           </div>
           <div className="mr-6">
             <NavLink
-              to={`/${role}/Account`}
+              to={`/${role}/account`}
               className={({ isActive }) =>
                 isActive ? "text-red-500" : "text-white"
               }
@@ -77,6 +81,4 @@ const HeaderUser = () => {
       </div>
     </header>
   );
-};
-
-export default HeaderUser;
+}

@@ -24,6 +24,7 @@ export default function LoginPage() {
           const user = userCredential.user;
           user.getIdTokenResult().then((idTokenResult) => {
             const { role } = idTokenResult.claims;
+            localStorage.setItem("role", role);
             console.log("LoginPage: ", user.uid, role);
             navigate(`/${role}`);
           });

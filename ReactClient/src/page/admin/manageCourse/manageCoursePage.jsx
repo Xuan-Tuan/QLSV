@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { onSnapshot, collection, query } from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+import { db } from "../../../config/firebaseConfig";
 import {
   doAddCourse,
   doAddCourseStudent,
   doAddScheduleCourse,
-} from "../controller/firestoreController";
+} from "../../../controller/firestoreController";
 import { Link } from "react-router-dom";
 
-export default function AddCoursePage() {
+export default function ManageCoursePage() {
   const [roomList, setRoomList] = useState([]);
   const [lecturerList, setLecturerList] = useState([]);
   const [studentList, setStudentList] = useState([]);

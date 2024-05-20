@@ -25,7 +25,6 @@ export default function AuthProvider({ children }) {
       console.log(error);
     }
   };
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, initializeUser);
     return unsubscribe;

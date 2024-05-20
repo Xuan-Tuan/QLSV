@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { doc, Timestamp } from "firebase/firestore";
-import { db } from "../config/firebaseConfig";
+import { db } from "../../config/firebaseConfig";
 import { onSnapshot, collection, where, query } from "firebase/firestore";
 import {
   doAddCourseInfo,
   doUpdateCourseOnlineLink,
-} from "../controller/firestoreController";
-import { LecListStudentPage } from "./lecListStudent";
+} from "../../controller/firestoreController";
+import LecListStudentPage from "./lecListStudent";
 
-export function LecCoursePage() {
+export default function LecCoursePage() {
   const { courseCode } = useParams();
   const [course, setCourse] = useState({});
   const [info, setInFo] = useState({ title: "", content: "" });

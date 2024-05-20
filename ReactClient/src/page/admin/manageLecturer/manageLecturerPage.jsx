@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { db } from "../config/firebaseConfig";
+import { db } from "../../../config/firebaseConfig";
 import { onSnapshot, collection, query } from "firebase/firestore";
 
-export default function AddLecturerPage() {
+export default function ManageLecturerPage() {
   const [lecturers, setLecturers] = useState([]);
   const [authLec, setAuthLec] = useState({
     email: "",

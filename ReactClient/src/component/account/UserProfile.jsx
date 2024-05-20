@@ -2,23 +2,34 @@ import React, { useState, useEffect } from "react";
 import { RiAccountCircleFill } from "react-icons/ri";
 import { FaAngleDown } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useAuth } from "../../controller/authController";
+import { doSignOut } from "../../controller/authController";
 
-export default function UserProfile(currentUser) {
+export default function UserProfile() {
   const [name, setName] = useState("");
   const [isLogoutVisible, setIsLogoutVisible] = useState(false);
   const role = localStorage.getItem("role");
-  const info = localStorage.getItem("info");
+
+  const { currentUser } = useAuth();
+  // console.log("Thông tin người dùng hiện tại ==> ", currentUser);
+  const hoten = currentUser.displayName;
 
   useEffect(() => {
     if (role === "admin") {
       setName("Admin");
     } else {
-      setName(info);
+      setName(hoten);
     }
-  }, [role, info]);
+  }, [role, hoten]);
 
-  const handleLogout = () => {
+  const handleLogOut = async (e) => {
     localStorage.clear();
+    e.preventDefault();
+    try {
+      await doSignOut();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -33,7 +44,7 @@ export default function UserProfile(currentUser) {
         />
         {isLogoutVisible && (
           <div className="absolute right-0 top-[65px] bg-white shadow-md rounded-lg p-2 min-h-10 min-w-[150px]">
-            <Link to="/LogIn" onClick={handleLogout}>
+            <Link to="/LogIn" onClick={(e) => handleLogOut(e)}>
               <button className="text-center py-2 px-2 text-uit hover:text-red-600 hover:font-medium transition duration-200">
                 Đăng xuất
               </button>
