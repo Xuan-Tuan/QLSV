@@ -1,0 +1,4 @@
+node_modules
+src/config/serviceAccountKey.json
+ReactClient/node_modules
+ReactClient/config/firebaseConfig.js
