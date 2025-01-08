@@ -1,0 +1,48 @@
+const { DataTypes, Model } = require( 'sequelize' );
+const { AuthenticationPersistence } = require( './authentication' );
+
+class LecturerPersistence extends Model
+{
+}
+
+const modelName = 'Lecturer'
+
+const initLecturer = ( sequelize ) =>
+{
+	LecturerPersistence.init( {
+		lecturerId: {
+			type: DataTypes.UUID,
+			primaryKey: true,
+		},
+		fullName: {
+			type: DataTypes.STRING,
+			allowNull: false,
+		},
+		email: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		phoneNumber: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		
+		address: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		authId: {
+			type: DataTypes.STRING,
+			allowNull: true,
+		},
+		
+	}, {
+		sequelize,
+		modelName,
+		timestamps: false,
+		tableName: 'lecturer',
+	} );
+
+}
+
+module.exports = { initLecturer, LecturerPersistence, modelName }
