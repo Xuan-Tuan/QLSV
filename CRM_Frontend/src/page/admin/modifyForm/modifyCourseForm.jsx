@@ -1,13 +1,5 @@
 import { useState, useEffect, useRef, useCallback, memo, useMemo } from "react";
 import PropTypes from "prop-types";
-// import
-// {
-// 	doGetCourseFromCourseID,
-// 	doGetStudentFromCourseID,
-// 	doUpdateCourseData,
-// 	doUpdateCourseStudentList,
-// } from "../../../controller/firestoreController";
-// import { convertDateFormat } from "../../../controller/formattedDate";
 import { API_SERVICE } from "../../../helpers/apiHelper";
 import moment from "moment";
 
@@ -41,13 +33,6 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
   }, []);
 
   useEffect(() => {
-    // doGetCourseFromCourseID(courseID).then((course) => {
-    // 	setCourseData(course);
-    // 	startDate.current = new Date(convertDateFormat(courseData.startDay));
-    //   });
-    //   doGetStudentFromCourseID(courseID).then((students) => {
-    // 	setCourseStudents(students);
-    //   });
     if (courseID) {
       getDetail(courseID);
     }
@@ -102,11 +87,7 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
           alert("Week must be between 1 and 16");
           return;
         }
-        // if ( moment(courseData?.startDay) < moment() )
-        // {
-        // 	alert( "Start day must be in the future" );
-        // 	return;
-        // }
+
         const courseField = {
           roomID: courseData.roomID,
           lecturerID: courseData.lecturerID,
@@ -119,7 +100,7 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
           endTime: moment(courseData.endTime, "HH:mm").format("HH:mm:ss"),
           students: courseStudents.map((item) => item),
         };
-        console.log("Payload gửi lên:", courseField); // 👈 Thêm dòng này để debug
+        console.log("Payload gửi lên:", courseField); // debug
         const response = await API_SERVICE.put(
           "courses/" + courseID,
           courseField

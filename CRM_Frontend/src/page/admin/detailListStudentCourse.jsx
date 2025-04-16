@@ -1,22 +1,11 @@
 import PropTypes from "prop-types";
 import { useEffect, useState, memo, useCallback } from "react";
-// import { doGetStudentInfoLecturer } from "../../controller/firestoreController";
 
 const DetailListStudentCourse = memo(function DetailListStudentCourse({
   studentList,
   courseCode,
 }) {
   const [studentInfo, setStudentInfo] = useState([]);
-
-  // const studentName = useCallback(async () => {
-  // 	console.log("studentList: ", studentList);
-  // 	const studentListName = await doGetStudentInfoLecturer(
-  // 		studentList,
-  // 		courseCode
-  // 	);
-  // 	// console.log(studentListName);
-  // 	setStudentInfo(studentListName);
-  // }, [studentList, courseCode]);
 
   useEffect(() => {
     setStudentInfo(studentList);

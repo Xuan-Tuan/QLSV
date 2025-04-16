@@ -1,7 +1,4 @@
 import { useEffect, useState, useCallback, memo } from "react";
-// import { doAddRoom, doDeleteRoom } from "../../controller/firestoreController";
-// import { onSnapshot, collection, query } from "firebase/firestore";
-// import { db } from "../../config/firebaseConfig";
 import { API_SERVICE } from "../../helpers/apiHelper";
 
 export default memo(function ManageRoomPage() {

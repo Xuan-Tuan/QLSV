@@ -1,12 +1,4 @@
 import { useEffect, useState, useCallback, memo } from "react";
-// import axiosInstance from "../../controller/axiosInstance";
-// import { db } from "../../config/firebaseConfig";
-// import { onSnapshot, collection, query } from "firebase/firestore";
-// import
-// {
-// 	doDeleteDocument,
-// 	doDeleteParentOfStudent,
-// } from "../../controller/firestoreController";
 import ModifyParentForm from "./modifyForm/modifyParentForm";
 import { AiOutlineUserDelete } from "react-icons/ai";
 import { TbUserEdit } from "react-icons/tb";

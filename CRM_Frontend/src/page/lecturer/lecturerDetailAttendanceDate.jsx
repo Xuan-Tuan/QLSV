@@ -8,13 +8,6 @@ import {
 } from "react";
 import { LecturerContext } from "./lecturerDetailCoursePage";
 // import { convertDateFormat } from "../../controller/formattedDate";
-// import { db } from "../../config/firebaseConfig";
-// import { collection, onSnapshot, query, where } from "firebase/firestore";
-// import
-// {
-// 	doGetStudentInfoListLecturer,
-// 	doGetScheduleIDLecturer,
-// } from "../../controller/firestoreController";
 // import { API_SERVICE } from "../../helpers/apiHelper";
 
 export default function LecturerDetailAttendanceDatePage(props) {

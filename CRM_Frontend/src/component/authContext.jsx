@@ -1,6 +1,4 @@
 import { useState, useEffect, createContext, useCallback } from "react";
-// import { auth } from "../config/firebaseConfig";
-// import { onAuthStateChanged } from "firebase/auth";
 import { PropTypes } from "prop-types";
 export const getAccessTokenFromLS = () =>
   localStorage.getItem("access_token") || "";
@@ -33,24 +31,6 @@ export default function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(getProfileFromLS());
   const [role, setRole] = useState(getRoleFromLS());
   const [pending, setPending] = useState(false);
-
-  //   const initializeUser = useCallback((user) => {
-  //     setPending(false);
-  //     try {
-  //       if (user) {
-  //         setCurrentUser(user);
-  //       } else {
-  //         setCurrentUser(null);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   }, []);
-
-  //   useEffect(() => {
-  //     const unsubscribe = onAuthStateChanged(auth, initializeUser);
-  //     return unsubscribe;
-  //   }, [initializeUser]);
 
   const values = {
     currentUser,

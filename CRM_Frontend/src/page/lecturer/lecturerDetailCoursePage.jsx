@@ -1,12 +1,5 @@
 import { useEffect, useState, createContext, memo, useCallback } from "react";
 import { useParams } from "react-router-dom";
-// import { db } from "../../config/firebaseConfig";
-// import { onSnapshot, collection, where, query, doc } from "firebase/firestore";
-import {
-  // doUpdateCourseOnlineLink,
-  doGetScheduleListFromCourseID,
-  // getStudentCount,
-} from "../../controller/firestoreController";
 import LecListStudentPage from "./lecturerListStudent";
 import LecturerDetailAttendanceDatePage from "./lecturerDetailAttendanceDate";
 import { formattedDate } from "../../controller/formattedDate";
@@ -239,83 +232,6 @@ export default memo(function LecturerDetailCoursePage() {
     setShowModal(true);
   }, []);
 
-  const GetScheduleList = useCallback(async () => {
-    const scheduleList = await doGetScheduleListFromCourseID(courseCode);
-    const scheduleDate = scheduleList.map((schedule) => schedule.date);
-    setScheduleDate(scheduleDate);
-  }, [courseCode]);
-
-  // useEffect( () =>
-  // {
-  // 	const queryCourse = query( doc( db, "course", courseCode ) );
-
-  // 	const unsubscribeCourse = onSnapshot( queryCourse, ( snapshot ) =>
-  // 	{
-  // 		// console.log(snapshot.data());
-  // 		setCourse( snapshot.data() );
-  // 	} );
-
-  // 	const queryCourseStudent = query(
-  // 		collection( db, "courseStudent" ),
-  // 		where( "courseID", "==", courseCode )
-  // 	);
-
-  // 	const unsubscribeCourseStudent = onSnapshot(
-  // 		queryCourseStudent,
-  // 		( snapshot ) =>
-  // 		{
-  // 			let studentList = [];
-  // 			snapshot.docs.forEach( ( doc ) =>
-  // 			{
-  // 				studentList.push( doc.data().studentID );
-  // 			} );
-  // 			// console.log(studentList);
-  // 			setStudentList( studentList );
-  // 		}
-  // 	);
-
-  // 	const querySchedule = query(
-  // 		collection( db, "schedule" ),
-  // 		where( "courseID", "==", courseCode ),
-  // 		where( "date", "==", currentDay )
-  // 	);
-
-  // 	const unsubscribeSchedule = onSnapshot( querySchedule, ( snapshot ) =>
-  // 	{
-  // 		if ( snapshot.empty )
-  // 		{
-  // 			console.log( "No matching documents." );
-  // 			return;
-  // 		}
-  // 		const scheduleID = snapshot.docs[ 0 ].id;
-  // 		const queryAttendance = query(
-  // 			collection( db, "attendance" ),
-  // 			where( "scheduleID", "==", scheduleID ),
-  // 			where( "attended", "==", "Present" )
-  // 		);
-  // 		onSnapshot( queryAttendance, ( snapshot ) =>
-  // 		{
-  // 			let attended = 0;
-  // 			snapshot.docs.forEach( () =>
-  // 			{
-  // 				attended++;
-  // 			} );
-  // 			setAttendanceStatsOfClass( ( prev ) => ( { ...prev, attended } ) );
-  // 		} );
-  // 	} );
-
-  // 	GetScheduleList();
-
-  // 	getClassSchedule();
-
-  // 	return () =>
-  // 	{
-  // 		unsubscribeCourse();
-  // 		unsubscribeCourseStudent();
-  // 		unsubscribeSchedule();
-  // 	};
-  // }, [ courseCode, currentDay, GetScheduleList, getClassSchedule ] );
-
   const getDetailData = async (code) => {
     const response = await API_SERVICE.get("courses/" + code);
     if (response?.status == "success") {
@@ -346,10 +262,6 @@ export default memo(function LecturerDetailCoursePage() {
       getDetailData(courseCode);
     }
   }, [courseCode]);
-
-  // getAttendance = async () => {
-
-  // }
 
   const values = {
     studentList,

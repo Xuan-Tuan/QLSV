@@ -1,17 +1,7 @@
 import { useState, useEffect, useCallback, memo } from "react";
-// import { onSnapshot, collection, query } from "firebase/firestore";
-// import { db } from "../../config/firebaseConfig";
-// import {
-//   doAddCourse,
-//   doAddCourseStudent,
-//   doAddScheduleCourse,
-//   doDeleteCourse,
-//   doGetLecturerName,
-// } from "../../controller/firestoreController";
 import { Link } from "react-router-dom";
 import ModifyCourseForm from "./modifyForm/modifyCourseForm";
 import { API_SERVICE } from "../../helpers/apiHelper";
-// import { formattedDate } from "../../controller/formattedDate";
 import moment from "moment";
 
 export default memo(function ManageCoursePage() {

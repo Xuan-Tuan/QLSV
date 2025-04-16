@@ -1,12 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useParams } from "react-router-dom";
-// import { db } from "../../config/firebaseConfig";
-// import { onSnapshot, collection, query } from "firebase/firestore";
-// import
-// {
-// 	doAddCourseInfo,
-// 	doDeleteDocument,
-// } from "../../controller/firestoreController";
 
 import { MdOutlineNotificationAdd } from "react-icons/md";
 import { RiDeleteBin6Line } from "react-icons/ri";

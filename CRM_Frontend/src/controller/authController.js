@@ -8,27 +8,22 @@ const useAuth = () => {
 
 const doSignInWithEmailAndPassword = async (email, password) => {
   try {
-    return await API_SERVICE.post("auth/login");
-    if (res?.status == "success") {
-      setCurrentUser(res?.data?.profile);
-    }
+    const res = await API_SERVICE.post("auth/login", { email, password });
     return res;
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
+    throw error;
   }
-  //   return setPersistence(auth, browserSessionPersistence)
-  //     .then(() => {
-  //       return signInWithEmailAndPassword(auth, email, password);
-  //     })
-  //     .catch((error) => {
-  //       console.error(error);
-  //     });
 };
 
-const doSignOut = () => {
-  localStorage.clear();
+// const doSignOut = () => {
+//   localStorage.clear();
+// };
 
-  //   return signOut(auth);
+const doSignOut = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("profile");
+  localStorage.removeItem("role");
 };
 
 export { doSignInWithEmailAndPassword, doSignOut, useAuth };

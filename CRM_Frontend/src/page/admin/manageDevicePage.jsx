@@ -1,11 +1,4 @@
 import { useEffect, useState, memo, useCallback } from "react";
-// import { collection, query, onSnapshot } from "firebase/firestore";
-// import { db } from "../../config/firebaseConfig";
-// import
-// {
-// 	doAddDevice,
-// 	doDeleteDocument,
-// } from "../../controller/firestoreController";
 import { formattedDate } from "../../controller/formattedDate";
 import axiosInstance from "../../controller/axiosInstance";
 import ModifyDeviceModal from "./modifyForm/modifyDeviceForm";

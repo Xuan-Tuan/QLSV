@@ -1,7 +1,4 @@
 import { useEffect, useState, memo, useCallback } from "react";
-// import axiosInstance from "../../controller/axiosInstance";
-// import { db } from "../../config/firebaseConfig";
-// import { onSnapshot, collection, query } from "firebase/firestore";
 import StudentListComponent from "./studentListComponent";
 import { API_SERVICE } from "../../helpers/apiHelper";
 

@@ -1,16 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, memo } from "react";
-// import {
-//   doGetCourseDetail,
-//   doGetScheduleFromCourseID,
-//   doGetStudentFromParent,
-//   doGetScheduleListFromCourseID,
-//   doGetAttendStatusFromStudentID,
-// } from "../../controller/firestoreController";
 import { formattedDate } from "../../controller/formattedDate";
 import { useAuth } from "../../controller/authController";
-// import { onSnapshot, query, collection, where } from "firebase/firestore";
-// import { db } from "../../config/firebaseConfig";
 import moment from "moment";
 import { API_SERVICE } from "../../helpers/apiHelper";
 
@@ -19,7 +10,6 @@ export default memo(function ParentDetailCoursePage() {
   const { currentUser } = useAuth();
   const [course, setCourse] = useState({});
   const [schedule, setSchedule] = useState([]);
-  const [studentId, setStudentId] = useState("");
   const [attended, setAttended] = useState("Absent");
   const [attendanceStats, setAttendanceStats] = useState({
     attended: 0,
@@ -28,94 +18,6 @@ export default memo(function ParentDetailCoursePage() {
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [scheduleList, setScheduleList] = useState([]);
 
-  //   const getScheduleList = useCallback(async () => {
-  //     const scheduleList = await doGetScheduleListFromCourseID(courseCode);
-  //     console.log("Tất cả lịch học:", scheduleList);
-  //     setScheduleList(scheduleList);
-  //   }, [courseCode]);
-
-  //   const getStudentList = useCallback(async () => {
-  //     const studentListFC = await doGetStudentFromParent(currentUser.uid);
-  //     if (studentListFC.length > 0) {
-  //       setStudentId(studentListFC[0].id);
-  //     }
-  //   }, [currentUser.uid]);
-
-  //   const getCourseDetail = useCallback(async () => {
-  //     const courseDetail = await doGetCourseDetail(courseCode);
-  //     setCourse(courseDetail);
-  //   }, [courseCode]);
-
-  //   const getSchedule = useCallback(async () => {
-  //     const schedule = await doGetScheduleFromCourseID(courseCode, currentDay);
-  //     setSchedule(schedule);
-  //   }, [courseCode, currentDay]);
-
-  //   //  hàm test
-  //   async function getAllSchedule() {
-  //     const attendanceTest = await doGetAttendStatusFromStudentID(
-  //       studentId,
-  //       courseCode
-  //     );
-  //   }
-
-  //   useEffect(() => {
-  //     getScheduleList();
-  //     getStudentList();
-  //     getCourseDetail();
-  //     getSchedule();
-  //     getAllSchedule();
-
-  //     const querySchedule = query(
-  //       collection(db, "schedule"),
-  //       where("courseID", "==", courseCode),
-  //       where("date", "==", currentDay)
-  //     );
-
-  //     const unsubscribeAttendance = onSnapshot(querySchedule, (snapshot) => {
-  //       if (snapshot.empty) {
-  //         console.log("No matching documents.");
-  //         return;
-  //       }
-
-  //       const queryAttendance = query(
-  //         collection(db, "attendance"),
-  //         where("studentID", "==", studentId),
-  //         where("scheduleID", "==", snapshot.docs[0].id),
-  //         where("courseID", "==", courseCode)
-  //       );
-
-  //       onSnapshot(queryAttendance, (snapshot) => {
-  //         if (snapshot.empty) {
-  //           setAttended("Absent");
-  //         } else {
-  //           setAttended(snapshot.docs[0].data().attended);
-  //         }
-  //       });
-  //     });
-
-  //     const queryAttendance = query(
-  //       collection(db, "attendance"),
-  //       where("studentID", "==", studentId),
-  //       where("courseID", "==", courseCode)
-  //     );
-
-  //     const unsubscribeAttendanceStats = onSnapshot(
-  //       queryAttendance,
-  //       (snapshot) => {
-  //         const total = snapshot.docs.length;
-  //         const attended = snapshot.docs.filter(
-  //           (doc) => doc.data().attended === "Present"
-  //         ).length;
-  //         setAttendanceStats({ total, attended });
-  //       }
-  //     );
-
-  //     return () => {
-  //       unsubscribeAttendance();
-  //       unsubscribeAttendanceStats();
-  //     };
-  //   }, [getScheduleList, getStudentList, getCourseDetail, getSchedule, currentDay, courseCode, currentUser.uid, studentId]);
   useEffect(() => {
     if (courseCode) {
       getListData(courseCode);

@@ -1,21 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState, useCallback, memo } from "react";
-// import {
-//   doGetCourseDetail,
-//   doGetScheduleFromCourseID,
-//   // doGetAttendStatusFromStudentID,
-//   doGetScheduleListFromCourseID,
-// } from "../../controller/firestoreController";
 import { formattedDate } from "../../controller/formattedDate";
 import { useAuth } from "../../controller/authController";
-// import {
-//   onSnapshot,
-//   query,
-//   collection,
-//   where,
-//   getDocs,
-// } from "firebase/firestore";
-// import { db } from "../../config/firebaseConfig";
 import { API_SERVICE } from "../../helpers/apiHelper";
 import moment from "moment";
 
@@ -31,108 +17,6 @@ export default memo(function StudentDetailCoursePage() {
   });
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [scheduleList, setScheduleList] = useState([]);
-
-  // const getScheduleList = useCallback( async () =>
-  // {
-  // 	const scheduleList = await doGetScheduleListFromCourseID( courseCode );
-  // 	// console.log("Tất cả lịch học: ", scheduleList);
-  // 	setScheduleList( scheduleList );
-  // }, [ courseCode ] );
-
-  // const getCourseDetail = useCallback( async () =>
-  // {
-  // 	const courseDetail = await doGetCourseDetail( courseCode );
-  // 	setCourse( courseDetail );
-  // }, [ courseCode ] );
-
-  // const getSchedule = useCallback( async () =>
-  // {
-  // 	const schedule = await doGetScheduleFromCourseID( courseCode, currentDay );
-  // 	// console.log("Lịch học hôm nay", schedule);
-  // 	setSchedule( schedule );
-  // }, [ courseCode, currentDay ] );
-
-  //  hàm test
-  // async function getAllSchedule() {
-  //   const attendanceTest = await doGetAttendStatusFromStudentID(
-  //     currentUser.uid,
-  //     courseCode
-  //   );
-  // }
-
-  // const getAttendanceStats = useCallback(async () => {
-  //   const attendanceStats = await doGetAttendStatusFromStudentID(
-  //     currentUser.uid,
-  //     courseCode
-  //   );
-  //   setAttendanceStats(attendanceStats);
-  // }, [courseCode, currentUser.uid]);
-
-  // useEffect( () =>
-  // {
-  // 	getScheduleList();
-  // 	// getAttendanceStats();
-  // 	getCourseDetail();
-  // 	getSchedule();
-  // 	// getAllSchedule();
-
-  // 	const querySchedule = query(
-  // 		collection( db, "schedule" ),
-  // 		where( "courseID", "==", courseCode ),
-  // 		where( "date", "==", currentDay )
-  // 	);
-
-  // 	const unsubscribeAttendance = onSnapshot( querySchedule, ( snapshot ) =>
-  // 	{
-  // 		if ( snapshot.empty )
-  // 		{
-  // 			console.log( "No matching documents." );
-  // 			return;
-  // 		}
-
-  // 		const attendanceRef = query(
-  // 			collection( db, "attendance" ),
-  // 			where( "studentID", "==", currentUser.uid ),
-  // 			where( "scheduleID", "==", snapshot.docs[ 0 ].id ),
-  // 			where( "courseID", "==", courseCode )
-  // 		);
-
-  // 		onSnapshot( attendanceRef, ( snapshot ) =>
-  // 		{
-  // 			if ( snapshot.empty )
-  // 			{
-  // 				setAttended( "Absent" );
-  // 			} else
-  // 			{
-  // 				setAttended( snapshot.docs[ 0 ].data().attended );
-  // 			}
-  // 		} );
-  // 	} );
-
-  // 	const queryAttendance = query(
-  // 		collection( db, "attendance" ),
-  // 		where( "studentID", "==", currentUser.uid ),
-  // 		where( "courseID", "==", courseCode )
-  // 	);
-
-  // 	const unsubscribeAttendanceStats = onSnapshot(
-  // 		queryAttendance,
-  // 		( snapshot ) =>
-  // 		{
-  // 			const total = snapshot.docs.length;
-  // 			const attended = snapshot.docs.filter(
-  // 				( doc ) => doc.data().attended === "Present"
-  // 			).length;
-  // 			setAttendanceStats( { total, attended } );
-  // 		}
-  // 	);
-
-  // 	return () =>
-  // 	{
-  // 		unsubscribeAttendance();
-  // 		unsubscribeAttendanceStats();
-  // 	};
-  // }, [ getScheduleList, getCourseDetail, getSchedule, currentDay, courseCode, currentUser.uid ] );
 
   useEffect(() => {
     if (courseCode) {
@@ -167,32 +51,6 @@ export default memo(function StudentDetailCoursePage() {
       buildData(currentDay, items?.attendances);
     }
   };
-
-  // const buildData = (date, dataOld, e) => {
-  //   e?.preventDefault();
-  //   if (dataOld?.length > 0) {
-  //     let data = dataOld?.filter((item) => item?.dateAtt == date);
-  //     console.log("data--------> ", date, data);
-
-  //     let dataAttend = data?.filter(
-  //       (e) => e?.attended?.toLowerCase() == "present"
-  //     );
-  //     if (moment(date).isAfter(moment(moment().format("YYYY-MM-DD")))) {
-  //       setAttended("Watching");
-  //     } else if (dataAttend?.length > 0) {
-  //       setAttended("Present");
-  //     } else {
-  //       setAttended("Absent");
-  //     }
-
-  //     setSchedule(data);
-
-  //     setAttendanceStats({
-  //       attended: dataAttend?.length,
-  //       total: dataOld?.length,
-  //     });
-  //   }
-  // };
   const buildData = (date, dataOld, e) => {
     e?.preventDefault(); // Ngăn hành động mặc định nếu có event
 

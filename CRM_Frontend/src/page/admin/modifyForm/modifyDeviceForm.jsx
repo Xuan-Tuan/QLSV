@@ -1,12 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import PropTypes from "prop-types";
-// import
-// {
-// 	doGetDeviceData,
-// 	updateDeviceData,
-// } from "../../../controller/firestoreController";
-// import { db } from "../../../config/firebaseConfig";
-// import { collection, query, onSnapshot } from "firebase/firestore";
 import { API_SERVICE } from "../../../helpers/apiHelper";
 
 const ModifyDeviceModal = memo(function ModifyDeviceModal({

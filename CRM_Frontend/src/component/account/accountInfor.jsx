@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { doSignOut } from "../../controller/authController";
-// import { doGetAccountInfo } from "../../controller/firestoreController";
 import { useAuth } from "../../controller/authController";
 
 export default memo(function AccountInfor() {

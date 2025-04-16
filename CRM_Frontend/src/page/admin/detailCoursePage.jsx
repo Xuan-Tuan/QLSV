@@ -1,13 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useParams } from "react-router-dom";
-// import { db } from "../../config/firebaseConfig";
-// import { onSnapshot, collection, where, query, doc } from "firebase/firestore";
-// import {
-//   doAddCourseInfo,
-//   doUpdateCourseOnlineLink,
-//   doDeleteDocument,
-//   doGetLecturerName,
-// } from "../../controller/firestoreController";
 import DetailListStudentCourse from "./detailListStudentCourse";
 import { FiEdit } from "react-icons/fi";
 import { API_SERVICE } from "../../helpers/apiHelper";

@@ -1,7 +1,5 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import PropTypes from "prop-types";
-// import { doDeleteStudent } from "../../controller/firestoreController";
-// import axiosInstance from "../../controller/axiosInstance";
 import ModifyStudentForm from "./modifyForm/modifyStudentForm";
 import { API_SERVICE } from "../../helpers/apiHelper";
 
