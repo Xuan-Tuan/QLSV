@@ -3,9 +3,9 @@ import { useParams } from "react-router-dom";
 // import { db } from "../../config/firebaseConfig";
 // import { onSnapshot, collection, where, query, doc } from "firebase/firestore";
 import {
-  doUpdateCourseOnlineLink,
+  // doUpdateCourseOnlineLink,
   doGetScheduleListFromCourseID,
-  getStudentCount,
+  // getStudentCount,
 } from "../../controller/firestoreController";
 import LecListStudentPage from "./lecturerListStudent";
 import LecturerDetailAttendanceDatePage from "./lecturerDetailAttendanceDate";
@@ -50,7 +50,9 @@ const CourseInfo = memo(function CourseInfo({ course, handleAddLinkOnline }) {
 
         <div className="flex justify-between space-x-4">
           <span className="font-semibold">Online URL:</span>
-          <span className="text-blue-700">{course?.onlineURL}</span>
+          <span className="text-blue-700">
+            {course?.onlineURL || course?.onlineUrl}
+          </span>
           <FiEdit
             className="border-2 rounded-md text-uit cursor-pointer transform transition-transform duration-300 hover:scale-110"
             size={30}
@@ -113,8 +115,6 @@ const ScheduleInfo = memo(function ScheduleInfo({
       });
     }
   };
-
-  console.log("attendanceList", attendanceList);
 
   return (
     <div className="flex flex-col justify-start items-center space-y-6 mt-8">
@@ -331,8 +331,13 @@ export default memo(function LecturerDetailCoursePage() {
       };
       setCourse(items);
       setStudentList(response?.data?.students);
-      let date = response?.data?.schedules?.map((item) => item.dateSche);
+      let date = response?.data?.schedules
+        ?.map((item) => item.dateSche)
+        ?.sort((a, b) => moment(a).diff(moment(b)));
+
       setScheduleDate(date);
+
+      console.log("data-----------> ", date);
     }
   };
 

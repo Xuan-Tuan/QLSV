@@ -1,15 +1,17 @@
 import { useEffect, useState, useCallback, memo } from "react";
 import { useParams } from "react-router-dom";
 // import { db } from "../../config/firebaseConfig";
-import { onSnapshot, collection, where, query, doc } from "firebase/firestore";
-import {
-  doAddCourseInfo,
-  doUpdateCourseOnlineLink,
-  doDeleteDocument,
-  doGetLecturerName,
-} from "../../controller/firestoreController";
+// import { onSnapshot, collection, where, query, doc } from "firebase/firestore";
+// import {
+//   doAddCourseInfo,
+//   doUpdateCourseOnlineLink,
+//   doDeleteDocument,
+//   doGetLecturerName,
+// } from "../../controller/firestoreController";
 import DetailListStudentCourse from "./detailListStudentCourse";
 import { FiEdit } from "react-icons/fi";
+import { API_SERVICE } from "../../helpers/apiHelper";
+import moment from "moment";
 
 export default memo(function DetailCoursePage() {
   const { courseCode } = useParams();
@@ -24,28 +26,45 @@ export default memo(function DetailCoursePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [infoToDelete, setInfoToDelete] = useState(null);
 
-  const handleInfoSubmit = useCallback(
-    async (e) => {
-      e.preventDefault();
-      console.log(info);
-      try {
-        await doAddCourseInfo(courseCode, info);
-        console.log("Add info success");
-        setShowAddInfoModal(false);
-      } catch (error) {
-        console.log(error);
-      }
-    },
-    [info, courseCode]
-  );
+  const getDetailData = async (code) => {
+    const response = await API_SERVICE.get("courses/" + code);
+    if (response?.status == "success") {
+      let data = {
+        ...response?.data,
+        lecturerName: response?.data?.lecturer?.fullName,
+        name: response?.data?.nameCourse,
+        roomID: response?.data?.roomId,
+        week: response?.data?.numberWeek,
+        onlineURL: response?.data?.onlineUrl,
+      };
+      setCourse(data);
+      setStudentList(response?.data?.students);
+    }
+  };
+
+  const getListInfo = async (code) => {
+    const response = await API_SERVICE.get("infos");
+    if (response?.status == "success") {
+      let data = response?.data?.filter((item) => item?.courseId == code);
+      setInfoList(data);
+    }
+  };
 
   const handleOnlineLinkSubmit = useCallback(
     async (e) => {
       e.preventDefault();
       try {
-        await doUpdateCourseOnlineLink(courseCode, onlineURL);
-        console.log("Add online link success");
-        setShowAddLinkModal(false);
+        const response = await API_SERVICE.put("courses/link/" + courseCode, {
+          ...course,
+          onlineUrl: onlineURL,
+        });
+        if (response?.status == "success") {
+          console.log("Add online link success");
+          setShowAddLinkModal(false);
+          setCourse({ ...course, onlineURL: onlineURL });
+        } else {
+          alert(response?.message);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -53,12 +72,35 @@ export default memo(function DetailCoursePage() {
     [courseCode, onlineURL]
   );
 
+  const handleInfoSubmit = useCallback(
+    async (e) => {
+      e.preventDefault();
+      const response = await API_SERVICE.post("infos", {
+        ...info,
+        courseId: courseCode,
+      });
+      console.log(response);
+      if (response?.status == "success") {
+        console.log("Add info success");
+        setShowAddInfoModal(false);
+        getListInfo(courseCode);
+        setInFo({ title: "", content: "" });
+      } else {
+        alert(response?.message);
+      }
+    },
+    [info, courseCode]
+  );
   const handleDeleteInfo = useCallback(async () => {
     try {
-      await doDeleteDocument("info", infoToDelete);
-      console.log("Delete info success");
-      setShowDeleteModal(false);
-      setInfoToDelete(null);
+      const response = await API_SERVICE.delete("infos/" + infoToDelete);
+      if (response?.status == "success") {
+        getListInfo(courseCode);
+        setShowDeleteModal(false);
+        console.log("Delete info success");
+      } else {
+        alert(res?.message);
+      }
     } catch (error) {
       console.log(error);
     }
@@ -70,59 +112,10 @@ export default memo(function DetailCoursePage() {
   }, []);
 
   useEffect(() => {
-    const queryCourse = query(doc(db, "course", courseCode));
-
-    const unsubscribeCourse = onSnapshot(queryCourse, (snapshot) => {
-      console.log(snapshot.data());
-      const lecturerID = snapshot.data().lecturerID;
-      doGetLecturerName(lecturerID).then((lecturerName) => {
-        setCourse({
-          ...snapshot.data(),
-          lecturerName: lecturerName,
-        });
-      });
-    });
-
-    const queryCourseStudent = query(
-      collection(db, "courseStudent"),
-      where("courseID", "==", courseCode)
-    );
-
-    const unsubscribeCourseStudent = onSnapshot(
-      queryCourseStudent,
-      (snapshot) => {
-        let studentList = [];
-        snapshot.docs.forEach((doc) => {
-          studentList.push(doc.data().studentID);
-        });
-        console.log(studentList);
-        setStudentList(studentList);
-      }
-    );
-
-    const queryInfo = query(collection(db, "info"));
-
-    const unsubscribeInfo = onSnapshot(
-      queryInfo,
-      (snapshot) => {
-        let infoList = [];
-        snapshot.docs.forEach((doc) => {
-          if (doc.data().courseCode === courseCode) {
-            infoList.push({ id: doc.id, ...doc.data() });
-          }
-        });
-        setInfoList(infoList);
-      },
-      (error) => {
-        console.log(error);
-      }
-    );
-
-    return () => {
-      unsubscribeInfo();
-      unsubscribeCourse();
-      unsubscribeCourseStudent();
-    };
+    if (courseCode) {
+      getDetailData(courseCode);
+      getListInfo(courseCode);
+    }
   }, [courseCode]);
 
   return (
@@ -218,7 +211,7 @@ export default memo(function DetailCoursePage() {
               </div>
               <div className="flex justify-between">
                 <div className="font-semibold mr-6">Start Day:</div>{" "}
-                <div>{course.startDay}</div>
+                <div>{moment(course.startDay).format("DD/MM/yyyy")}</div>
               </div>
               <div className="flex flex-col justify-between items-center">
                 <div className="flex justify-between  text-gray-500">
@@ -316,7 +309,12 @@ export default memo(function DetailCoursePage() {
                 <input
                   id="infoTitle"
                   type="text"
-                  onChange={(e) => setInFo({ ...info, title: e.target.value })}
+                  onChange={(e) =>
+                    setInFo({
+                      ...info,
+                      title: e.target.value,
+                    })
+                  }
                   className="w-full px-3 py-2 border rounded-lg"
                 />
               </div>
@@ -330,7 +328,10 @@ export default memo(function DetailCoursePage() {
                 <textarea
                   id="infoContent"
                   onChange={(e) =>
-                    setInFo({ ...info, content: e.target.value })
+                    setInFo({
+                      ...info,
+                      content: e.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border rounded-lg"
                 />

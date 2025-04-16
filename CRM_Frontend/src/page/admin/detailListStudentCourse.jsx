@@ -1,6 +1,6 @@
 import PropTypes from "prop-types";
 import { useEffect, useState, memo, useCallback } from "react";
-import { doGetStudentInfoLecturer } from "../../controller/firestoreController";
+// import { doGetStudentInfoLecturer } from "../../controller/firestoreController";
 
 const DetailListStudentCourse = memo(function DetailListStudentCourse({
   studentList,
@@ -8,24 +8,24 @@ const DetailListStudentCourse = memo(function DetailListStudentCourse({
 }) {
   const [studentInfo, setStudentInfo] = useState([]);
 
-  const studentName = useCallback(async () => {
-    console.log("studentList: ", studentList);
-    const studentListName = await doGetStudentInfoLecturer(
-      studentList,
-      courseCode
-    );
-    // console.log(studentListName);
-    setStudentInfo(studentListName);
-  }, [studentList, courseCode]);
+  // const studentName = useCallback(async () => {
+  // 	console.log("studentList: ", studentList);
+  // 	const studentListName = await doGetStudentInfoLecturer(
+  // 		studentList,
+  // 		courseCode
+  // 	);
+  // 	// console.log(studentListName);
+  // 	setStudentInfo(studentListName);
+  // }, [studentList, courseCode]);
 
   useEffect(() => {
-    studentName();
-  }, [studentName]);
+    setStudentInfo(studentList);
+  }, [courseCode]);
 
   return (
     <div className="container mx-auto px-4">
       <h1 className="text-xl text-uit font-bold mb-4">Danh sách sinh viên</h1>
-      {studentInfo.length > 0 ? (
+      {studentInfo?.length > 0 ? (
         <div className="overflow-x-auto">
           <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
             <thead className="bg-gray-200 text-gray-600">
@@ -38,7 +38,7 @@ const DetailListStudentCourse = memo(function DetailListStudentCourse({
               </tr>
             </thead>
             <tbody>
-              {studentInfo.map((student, index) => (
+              {studentInfo?.map((student, index) => (
                 <tr key={student.id} className="hover:bg-gray-100">
                   <td className="border-t px-4 py-2">{index + 1}</td>
                   <td className="border-t px-4 py-2">{student.name}</td>
