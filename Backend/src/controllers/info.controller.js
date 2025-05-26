@@ -27,7 +27,11 @@ const controller = {
         content: req?.body?.content,
         courseId: req?.body?.courseId,
       };
-      await InfoPersistence.create(data);
+      // chua xac thuc req.body but process in frontend
+      //if (!req?.body?.title || !req?.body?.courseId) {
+      // throw new ApiError(400, "Thiếu tiêu đề hoặc khóa học"); }
+
+      await InfoPersistence.create(data); // lưu bản ghi vào db
 
       res.status(200).json({ status: "success", data });
     } catch (error) {
@@ -35,7 +39,7 @@ const controller = {
       throw new ApiError(400, error.message);
     }
   }),
-
+  // func update chua sd
   update: catchAsync(async (req, res) => {
     const { id } = req.params;
     try {
@@ -73,6 +77,14 @@ const controller = {
             }),
           });
         }
+        // 69-79: for chay rat cham if data.length lon --> thay bang promise.all
+        // const result = await Promise.all(data.map(async (item) => ({
+        //   ...item.dataValues,
+        //   id: item.infoId,
+        //   course: await CoursePersistence.findOne({
+        //     where: { courseId: item.courseId },
+        //   }),
+        // })));
       }
 
       res.status(200).json({ status: "success", data: result });
@@ -80,14 +92,15 @@ const controller = {
       throw new ApiError(400, error.message);
     }
   }),
-
+  // func show chua sd
   show: catchAsync(async (req, res) => {
     try {
       const { id } = req.params;
 
-      let data = InfoPersistence.findOne({
+      let data = await InfoPersistence.findOne({
         where: {
-          roomId: id,
+          // roomId: id,
+          inforId: id,
         },
       });
 
@@ -114,7 +127,7 @@ const controller = {
       console.log("đá---------> ", id);
       let result = null;
       let data = await InfoPersistence.findOne({ where: { infoId: id } });
-      if (!data) throw new ApiError(404, `room with ID ${id} not found`);
+      if (!data) throw new ApiError(404, `info with ID ${id} not found`);
       result = await InfoPersistence.destroy({ where: { infoId: id } });
 
       res.status(200).json({ status: "success", data: true });

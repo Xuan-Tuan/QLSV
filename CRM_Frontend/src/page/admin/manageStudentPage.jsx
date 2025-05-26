@@ -33,12 +33,12 @@ export default memo(function ManageStudentPage() {
           authStu.email === "" ||
           authStu.password === "" ||
           stuInfo.name === "" ||
-          stuInfo.parentID === "" ||
+          // stuInfo.parentID === "" ||
           stuInfo.address === "" ||
-          stuInfo.phoneNumber === "" ||
-          stuInfo.RFID === ""
+          stuInfo.phoneNumber === ""
+          // stuInfo.RFID === ""
         ) {
-          alert("Please fill in all fields");
+          alert("Please fill in all the required information.");
           setAuthStu({ email: "", password: "", role: "student" });
           setStuInfo({
             name: "",
@@ -89,6 +89,7 @@ export default memo(function ManageStudentPage() {
         }
       } catch (error) {
         console.log(error);
+        console.log("info", stuInfo);
         alert("Failed to add student");
       }
     },

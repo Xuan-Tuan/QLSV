@@ -1,33 +1,30 @@
-const { DataTypes, Model } = require( 'sequelize' );
+const { DataTypes, Model } = require("sequelize");
 
-class CourseStudentPersistence extends Model
-{
-}
+class CourseStudentPersistence extends Model {}
 
-const modelName = 'CourseStudent'
+const modelName = "CourseStudent";
 
-const initCourseStudent = ( sequelize ) =>
-{
-	CourseStudentPersistence.init( {
-		csId: {
-			type: DataTypes.UUID,
-			primaryKey: true,
-		},
-		courseId: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		MSSV: {
-			type: DataTypes.STRING,
-			allowNull: false,
-		},
-		
-	}, {
-		sequelize,
-		modelName,
-		timestamps: false,
-		tableName: 'coursestudent',
-	} )
-}
+const initCourseStudent = (sequelize) => {
+  CourseStudentPersistence.init(
+    {
+      courseId: {
+        type: DataTypes.STRING(36),
+        allowNull: false,
+        primaryKey: true,
+      },
+      MSSV: {
+        type: DataTypes.STRING(8),
+        allowNull: false,
+        primaryKey: true,
+      },
+    },
+    {
+      sequelize,
+      modelName,
+      timestamps: false,
+      tableName: "coursestudent",
+    }
+  );
+};
 
-module.exports = { initCourseStudent, CourseStudentPersistence, modelName }
+module.exports = { initCourseStudent, CourseStudentPersistence, modelName };

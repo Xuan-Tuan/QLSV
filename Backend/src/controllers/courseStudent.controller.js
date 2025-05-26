@@ -1,47 +1,37 @@
-const catchAsync = require( '../utils/catchAsync' )
-const bcrypt = require( 'bcryptjs' )
-const jwt = require( 'jsonwebtoken' )
-const ApiError = require( '../utils/ApiError' )
-const { AuthenticationPersistence } = require( '../model/authentication' );
-const config = require( '../config/config' );
-const { v4 } = require( 'uuid' );
-const { generateShortCode } = require( '../utils/common' );
-const { sequelize } = require( '../config/sequelize' );
-const { Op } = require( 'sequelize' );
-const { CourseStudentPersistence } = require( '../model/courseStudent' );
-const { StudentPersistence } = require( '../model/student' );
-const { CoursePersistence } = require( '../model/course' );
+const catchAsync = require("../utils/catchAsync");
+const ApiError = require("../utils/ApiError");
+const { CourseStudentPersistence } = require("../model/courseStudent");
+const { CoursePersistence } = require("../model/course");
 
 const controller = {
+  create: catchAsync(async (req, res) => {
+    try {
+      const { courseId, MSSV } = req.body;
 
-	create: catchAsync( async ( req, res ) =>
-	{
-		try
-		{
-			const request = req.body;
-			const exist = await CoursePersistence.findOne( {
-				where: {
-					courseId: request?.courseId
-				}
-			} );
-			if ( !exist )
-			{
-				throw new ApiError( 400, 'Môn học không tồn tại' )
-			}
-			const data = {
-				csId: request?.csId,
-				studentId: request?.studentId,
-				courseId: request?.courseId,
-			};
-			await CourseStudentPersistence.create( data );
-			res.status( 200 ).json( { status: 'success', data } );
-		} catch ( error )
-		{
-			console.log( error );
-			throw new ApiError( 400, error.message );
-		}
-	} ),
+      // Kiểm tra xem môn học có tồn tại không
+      const course = await CoursePersistence.findOne({
+        where: { courseId },
+      });
+      if (!course) {
+        throw new ApiError(400, "Môn học không tồn tại");
+      }
 
-}
+      // Tạo bản ghi mới nếu chưa tồn tại
+      const [record, created] = await CourseStudentPersistence.findOrCreate({
+        where: { courseId, MSSV },
+        defaults: { courseId, MSSV },
+      });
 
-module.exports = { controller }
+      if (!created) {
+        throw new ApiError(400, "Sinh viên đã được đăng ký vào môn học này");
+      }
+
+      res.status(200).json({ status: "success", data: record });
+    } catch (error) {
+      console.error(error);
+      throw new ApiError(400, error.message);
+    }
+  }),
+};
+
+module.exports = { controller };

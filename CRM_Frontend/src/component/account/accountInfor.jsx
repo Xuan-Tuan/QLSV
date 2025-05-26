@@ -7,7 +7,7 @@ export default memo(function AccountInfor() {
   const { currentUser, role } = useAuth();
 
   const [userInfo, setUserInfo] = useState({
-    name: "",
+    fullname: "",
     email: "",
     phoneNumber: "",
     address: "",
@@ -29,6 +29,7 @@ export default memo(function AccountInfor() {
     if (currentUser) {
       setUserInfo(currentUser);
     }
+    // console.log("Info Login: ", currentUser);
   }, [currentUser]);
 
   const getRoleDisplayName = useCallback((role) => {
@@ -57,7 +58,7 @@ export default memo(function AccountInfor() {
         <div className="flex flex-col items-start ml-6 space-y-4 text-uit">
           <div className="flex justify-between w-full">
             <span className="font-semibold">Họ tên: </span>
-            <span>{userInfo.name}</span>
+            <span>{userInfo.fullName}</span>
           </div>
           <div className="flex justify-between w-full">
             <span className="font-semibold">Email: </span>

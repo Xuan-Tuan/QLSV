@@ -15,7 +15,7 @@ export default memo(function UserProfile() {
 
   useEffect(() => {
     if (currentUser) {
-      setName(currentUser.displayName);
+      setName(currentUser.fullName);
     }
   }, [currentUser]);
 

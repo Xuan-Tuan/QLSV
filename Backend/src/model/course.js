@@ -12,7 +12,7 @@ const initCourse = (sequelize) => {
         primaryKey: true,
       },
       nameCourse: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: false,
       },
       startDay: {
@@ -20,7 +20,7 @@ const initCourse = (sequelize) => {
         allowNull: false,
       },
       numberWeek: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(2),
         allowNull: true,
       },
       startTime: {
@@ -28,7 +28,7 @@ const initCourse = (sequelize) => {
         allowNull: true,
       },
       onlineUrl: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(30),
         allowNull: false,
       },
       endTime: {
@@ -37,11 +37,11 @@ const initCourse = (sequelize) => {
         unique: true,
       },
       lecturerId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(36),
         allowNull: true,
       },
       roomId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(36),
         allowNull: true,
       },
     },

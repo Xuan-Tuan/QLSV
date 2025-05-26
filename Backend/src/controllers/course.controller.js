@@ -28,228 +28,273 @@ const validateTime = (timeString) => {
 const controller = {
   create: catchAsync(async (req, res) => {
     const transaction = await sequelize.transaction();
-
     try {
       const request = req.body;
-      const exist = await CoursePersistence.findOne({
-        where: {
-          courseId: request?.courseId,
-        },
-      });
 
-      const data = {
-        courseId: request?.courseId,
-        nameCourse: request?.nameCourse || request.name,
-        startDay: formattedDate(request?.startDay),
-        numberWeek: request?.numberWeek || request?.week,
-        startTime: validateTime(request?.startTime),
-        onlineUrl: request?.onlineUrl || request?.onlineURL,
-        endTime: validateTime(request?.endTime),
-        lecturerId: request?.lecturerId || request?.lecturerID,
-        roomId: request?.roomId || request?.roomID,
-      };
-      console.log("data---------?> ", data);
+      const {
+        courseId,
+        nameCourse,
+        name,
+        startDay,
+        numberWeek,
+        week,
+        startTime,
+        endTime,
+        onlineUrl,
+        onlineURL,
+        lecturerId,
+        lecturerID,
+        roomId,
+        roomID,
+        students = [],
+      } = request;
+
+      // Kiểm tra trùng mã môn học
+      const exist = await CoursePersistence.findOne({
+        where: { courseId },
+      });
       if (exist) {
         throw new ApiError(400, "Mã môn học đã tồn tại");
       }
-      // roomID: course.roomID,
-      // 		lecturerID: course.lecturerID,
-      // 		courseId: course.code,
-      // 		name: course.name,
-      // 		onlineURL: course.onlineURL,
-      // 		startDay: formattedDate( course.startDay ),
-      // 		week: course.week,
-      // 		startTime: course.startTime,
-      // 		endTime: course.endTime,
-      // 		students: courseStudentList,
-      await CoursePersistence.create(data, { transaction });
-      const scheduleList = generateSchedule(data.startDay, data.numberWeek);
+
+      const courseData = {
+        courseId,
+        nameCourse: nameCourse || name,
+        startDay: formattedDate(startDay),
+        numberWeek: numberWeek || week,
+        startTime: validateTime(startTime),
+        endTime: validateTime(endTime),
+        onlineUrl: onlineUrl || onlineURL,
+        lecturerId: lecturerId || lecturerID,
+        roomId: roomId || roomID,
+      };
+
+      await CoursePersistence.create(courseData, { transaction });
+
+      // Tạo danh sách lịch học
+      const scheduleList = generateSchedule(
+        courseData.startDay,
+        courseData.numberWeek
+      );
       const dataSchedules = [];
-      if (scheduleList?.length > 0) {
-        for (let e of scheduleList) {
-          // Fetch students' course data
-          let schedule = await SchedulePersistence.findOne({
+
+      for (let e of scheduleList) {
+        const dateSche = formattedDate(e.date);
+        const [schedule] = await SchedulePersistence.findOrCreate({
+          where: {
+            courseId: courseData.courseId,
+            dateSche,
+          },
+          defaults: {
+            scheduleId: generateNumericShortCode(5, "SCH"),
+            courseId: courseData.courseId,
+            dateSche,
+          },
+          transaction,
+        });
+        dataSchedules.push(schedule);
+      }
+
+      // Gán sinh viên vào khóa học và tạo điểm danh
+      for (let studentMSSV of students) {
+        await CourseStudentPersistence.findOrCreate({
+          where: {
+            courseId: courseData.courseId,
+            MSSV: studentMSSV,
+          },
+          defaults: {
+            courseId: courseData.courseId,
+            MSSV: studentMSSV,
+          },
+          transaction,
+        });
+
+        for (let schedule of dataSchedules) {
+          await AttendancePersistence.findOrCreate({
             where: {
-              courseId: data.courseId,
-              dateSche: formattedDate(e?.date),
+              MSSV: studentMSSV,
+              scheduleId: schedule.scheduleId,
             },
+            defaults: {
+              MSSV: studentMSSV,
+              scheduleId: schedule.scheduleId,
+              attended: "FALSE",
+            },
+            transaction,
           });
-
-          let resultSche = schedule?.dataValues;
-
-          if (!resultSche) {
-            resultSche = {
-              scheduleId: generateNumericShortCode(5, "SCH"),
-              courseId: data.courseId,
-              dateSche: formattedDate(e?.date),
-            };
-            await SchedulePersistence.create(resultSche, {
-              transaction,
-            });
-            // dataSchedules.push(resultSche)
-          }
-          dataSchedules.push(resultSche);
         }
       }
-      if (request?.students?.length > 0) {
-        await Promise.all(
-          request?.students.map(async (item) => {
-            const studentCourse = await CourseStudentPersistence.findOne({
-              where: {
-                courseId: data.courseId,
-                MSSV: item,
-              },
-            });
-            if (!studentCourse) {
-              await CourseStudentPersistence.create(
-                {
-                  csId: generateNumericShortCode(5, "CS"),
-                  courseId: data.courseId,
-                  MSSV: item,
-                },
-                { transaction }
-              );
-            }
 
-            if (dataSchedules?.length > 0) {
-              for (let resultSche of dataSchedules) {
-                if (resultSche) {
-                  const attendance = await AttendancePersistence.findOne({
-                    where: {
-                      courseID: data?.courseId,
-                      MSSV: item,
-                      scheduleId: resultSche?.scheduleId,
-                    },
-                  });
-                  if (!attendance) {
-                    await AttendancePersistence.create(
-                      {
-                        attendId: generateNumericShortCode(5, "ATT"),
-                        courseId: data?.courseId,
-                        MSSV: item,
-                        attended: "FALSE", // FALSE: absent
-                        scheduleId: resultSche?.scheduleId,
-                      },
-                      { transaction }
-                    );
-                  }
-                }
-              }
-            }
-          })
-        );
-      }
       await transaction.commit();
-      res.status(200).json({ status: "success", data });
+      res.status(200).json({ status: "success", data: courseData });
     } catch (error) {
-      console.log(error);
       await transaction.rollback();
-
+      console.error("Create course error:", error);
       throw new ApiError(400, error.message);
     }
   }),
-
   update: catchAsync(async (req, res) => {
     const { id } = req.params;
     const transaction = await sequelize.transaction();
-    console.log(id);
+
     try {
       const request = req.body;
-      const existingUser = await CoursePersistence.findOne({
-        where: {
-          courseId: id,
-        },
+      const {
+        nameCourse,
+        name,
+        startDay,
+        numberWeek,
+        week,
+        startTime,
+        endTime,
+        onlineUrl,
+        onlineURL,
+        lecturerId,
+        lecturerID,
+        roomId,
+        roomID,
+        students = [],
+      } = request;
+
+      const existingCourse = await CoursePersistence.findOne({
+        where: { courseId: id },
       });
-      if (!existingUser) throw new ApiError(400, "Môn học không tồn tại");
+
+      if (!existingCourse) throw new ApiError(400, "Môn học không tồn tại");
+
       const data = {
-        // courseId: request?.courseId ,
-        nameCourse: request?.nameCourse || request.name,
-        startDay: formattedDate(request?.startDay),
-        numberWeek: request?.numberWeek || request?.week,
-        startTime: validateTime(request?.startTime),
-        onlineUrl: request?.onlineUrl || request?.onlineURL,
-        endTime: validateTime(request?.endTime),
-        lecturerId: request?.lecturerId || request?.lecturerID,
-        roomId: request?.roomId || request?.roomID,
+        courseId: id,
+        nameCourse: nameCourse || name,
+        startDay: formattedDate(startDay),
+        numberWeek: numberWeek || week,
+        startTime: validateTime(startTime),
+        endTime: validateTime(endTime),
+        onlineUrl: onlineUrl || onlineURL,
+        lecturerId: lecturerId || lecturerID,
+        roomId: roomId || roomID,
       };
-      await CoursePersistence.update(data, { where: { courseId: id } });
-      console.log(data);
-      const scheduleList = generateSchedule(data.startDay, data.numberWeek);
-      const dataSchedules = [];
-      if (scheduleList?.length > 0) {
-        for (let e of scheduleList) {
-          // Fetch students' course data
-          let schedule = await SchedulePersistence.findOne({
-            where: {
-              courseId: data.courseId,
-              dateSche: formattedDate(e?.date),
-            },
-          });
 
-          let resultSche = schedule?.dataValues;
+      await CoursePersistence.update(data, {
+        where: { courseId: id },
+        transaction,
+      });
 
-          if (!resultSche) {
-            resultSche = {
-              scheduleId: generateNumericShortCode(5, "SCH"),
-              courseId: data.courseId,
-              dateSche: formattedDate(e?.date),
-            };
-            await SchedulePersistence.create(resultSche, {
-              transaction,
-            });
-            // dataSchedules.push(resultSche)
+      // Kiểm tra nếu lịch học thay đổi
+      const oldStartDay = formattedDate(existingCourse.startDay);
+      const oldNumberWeek = existingCourse.numberWeek;
+      const isScheduleChanged =
+        oldStartDay !== data.startDay ||
+        Number(oldNumberWeek) !== Number(data.numberWeek);
+
+      let dataSchedules = [];
+
+      if (isScheduleChanged) {
+        // Xoá lịch cũ
+        await AttendancePersistence.destroy({
+          where: {
+            scheduleId: sequelize.literal(`scheduleId IN (
+            SELECT scheduleId FROM schedule WHERE courseId = '${id}'
+          )`),
+          },
+          transaction,
+        });
+
+        await SchedulePersistence.destroy({
+          where: { courseId: id },
+          transaction,
+        });
+
+        // Tạo lại lịch học mới
+        const scheduleList = generateSchedule(data.startDay, data.numberWeek);
+
+        for (const e of scheduleList) {
+          const schedule = {
+            scheduleId: generateNumericShortCode(5, "SCH"),
+            courseId: id,
+            dateSche: formattedDate(e.date),
+          };
+          await SchedulePersistence.create(schedule, { transaction });
+          dataSchedules.push(schedule);
+        }
+
+        // Tạo lại attendance cho tất cả sinh viên đã đăng ký
+        const allStudents = await CourseStudentPersistence.findAll({
+          where: { courseId: id },
+          attributes: ["MSSV"],
+        });
+
+        for (const student of allStudents) {
+          for (const schedule of dataSchedules) {
+            await AttendancePersistence.create(
+              {
+                MSSV: student.MSSV,
+                attended: "FALSE",
+                scheduleId: schedule.scheduleId,
+              },
+              { transaction }
+            );
           }
-          dataSchedules.push(resultSche);
+        }
+      } else {
+        // Nếu lịch không thay đổi, lấy lại danh sách lịch cũ để sử dụng cho sinh viên mới
+        dataSchedules = await SchedulePersistence.findAll({
+          where: { courseId: id },
+        });
+      }
+
+      // Xử lý danh sách sinh viên
+      const currentStudents = await CourseStudentPersistence.findAll({
+        where: { courseId: id },
+        attributes: ["MSSV"],
+      });
+      const currentMSSVs = currentStudents.map((s) => s.MSSV);
+
+      // Sinh viên cần xoá
+      const studentsToRemove = currentMSSVs.filter(
+        (mssv) => !students.includes(mssv)
+      );
+      if (studentsToRemove.length > 0) {
+        await CourseStudentPersistence.destroy({
+          where: { courseId: id, MSSV: studentsToRemove },
+          transaction,
+        });
+        await AttendancePersistence.destroy({
+          where: {
+            MSSV: studentsToRemove,
+            scheduleId: sequelize.literal(`scheduleId IN (
+            SELECT scheduleId FROM schedule WHERE courseId = '${id}'
+          )`),
+          },
+          transaction,
+        });
+      }
+
+      // Sinh viên mới cần thêm
+      const newStudents = students.filter(
+        (mssv) => !currentMSSVs.includes(mssv)
+      );
+
+      for (const mssv of newStudents) {
+        await CourseStudentPersistence.create(
+          {
+            courseId: id,
+            MSSV: mssv,
+          },
+          { transaction }
+        );
+
+        for (const schedule of dataSchedules) {
+          await AttendancePersistence.create(
+            {
+              MSSV: mssv,
+              attended: "FALSE",
+              scheduleId: schedule.scheduleId,
+            },
+            { transaction }
+          );
         }
       }
-      if (request?.students?.length > 0) {
-        await Promise.all(
-          request?.students.map(async (item) => {
-            const studentCourse = await CourseStudentPersistence.findOne({
-              where: {
-                courseId: data.courseId,
-                MSSV: item,
-              },
-            });
-            if (!studentCourse) {
-              await CourseStudentPersistence.create(
-                {
-                  csId: generateNumericShortCode(5, "CS"),
-                  courseId: data.courseId,
-                  MSSV: item,
-                },
-                { transaction }
-              );
-            }
 
-            if (dataSchedules?.length > 0) {
-              for (let resultSche of dataSchedules) {
-                if (resultSche) {
-                  const attendance = await AttendancePersistence.findOne({
-                    where: {
-                      courseID: data?.courseId,
-                      MSSV: item,
-                      scheduleId: resultSche?.scheduleId,
-                    },
-                  });
-                  if (!attendance) {
-                    await AttendancePersistence.create(
-                      {
-                        attendId: generateNumericShortCode(5, "ATT"),
-                        courseId: data?.courseId,
-                        MSSV: item,
-                        attended: "FALSE", // FALSE: absent
-                        scheduleId: resultSche?.scheduleId,
-                      },
-                      { transaction }
-                    );
-                  }
-                }
-              }
-            }
-          })
-        );
-      }
       await transaction.commit();
       res.status(200).json({ status: "success", data });
     } catch (error) {
@@ -257,21 +302,27 @@ const controller = {
       throw new ApiError(400, error.message);
     }
   }),
-
   updateLink: catchAsync(async (req, res) => {
     const { id } = req.params;
-    console.log(id);
+
     try {
       const request = req.body;
-      const existingUser = await CoursePersistence.findOne({
-        where: {
-          courseId: id,
-        },
+
+      const existingCourse = await CoursePersistence.findOne({
+        where: { courseId: id },
       });
-      if (!existingUser) throw new ApiError(400, "Môn học không tồn tại");
-      const data = {
-        onlineUrl: request?.onlineUrl || request?.onlineURL,
-      };
+
+      if (!existingCourse) {
+        throw new ApiError(400, "Môn học không tồn tại");
+      }
+
+      const onlineUrl = request?.onlineUrl || request?.onlineURL;
+      if (!onlineUrl || typeof onlineUrl !== "string") {
+        throw new ApiError(400, "Đường dẫn onlineUrl không hợp lệ");
+      }
+
+      const data = { onlineUrl };
+
       await CoursePersistence.update(data, { where: { courseId: id } });
 
       res.status(200).json({ status: "success", data });
@@ -279,314 +330,340 @@ const controller = {
       throw new ApiError(400, error.message);
     }
   }),
-
   getList: catchAsync(async (req, res) => {
     try {
+      const { lecturerId, studentId, parentId } = req.query;
       let conditions = {};
-      if (req?.query?.lecturerId) {
-        conditions.lecturerId = req?.query?.lecturerId;
+      let courseIds = [];
+
+      if (lecturerId) {
+        conditions.lecturerId = lecturerId;
       }
 
-      let courseIds = [];
-      if (req?.query?.studentId) {
-        let listStudentCouse = await CourseStudentPersistence.findAll({
-          where: {
-            MSSV: req?.query?.studentId,
-          },
-        });
-        if (listStudentCouse?.length > 0) {
-          for (let item of listStudentCouse) {
-            let value = item?.dataValues;
-            if (value) courseIds.push(value?.courseId);
-          }
-        } else {
-          res.status(200).json({ status: "success", data: [] });
+      // Gộp logic lấy courseIds từ studentId hoặc parentId
+      if (studentId || parentId) {
+        let studentIds = [];
+
+        if (studentId) {
+          studentIds.push(studentId);
         }
-      }
-      if (req?.query?.parentId) {
-        let listStudents = await StudentPersistence.findAll({
-          where: {
-            parentId: req?.query?.parentId,
-          },
-        });
-        if (listStudents?.length > 0) {
-          const studentsIds = listStudents?.map((item) => item?.MSSV);
-          let listStudentCouse = await CourseStudentPersistence.findAll({
-            where: {
-              MSSV: {
-                [Op.in]: studentsIds,
-              },
-            },
+
+        if (parentId) {
+          const students = await StudentPersistence.findAll({
+            where: { parentId },
+            attributes: ["MSSV"],
+            raw: true,
           });
-          console.log(
-            "listStudentCouse----------> ",
-            studentsIds,
-            listStudentCouse
-          );
-          if (listStudentCouse?.length > 0) {
-            for (let item of listStudentCouse) {
-              let value = item?.dataValues;
-              if (value) courseIds.push(value?.courseId);
-            }
-          } else {
-            return res.status(200).json({ status: "success", data: [] });
-          }
+          studentIds.push(...students.map((s) => s.MSSV));
         }
+
+        if (studentIds.length === 0) {
+          return res.status(200).json({ status: "success", data: [] });
+        }
+
+        const studentCourses = await CourseStudentPersistence.findAll({
+          where: { MSSV: { [Op.in]: studentIds } },
+          attributes: ["courseId"],
+          raw: true,
+        });
+
+        courseIds = studentCourses.map((sc) => sc.courseId);
+
+        if (courseIds.length === 0) {
+          return res.status(200).json({ status: "success", data: [] });
+        }
+
+        conditions.courseId = { [Op.in]: courseIds };
       }
-      if (courseIds?.length > 0) {
-        conditions = {
-          ...conditions,
-          courseId: {
-            [Op.in]: courseIds,
-          },
-        };
-      }
-      let list = await CoursePersistence.findAll({
-        where: { ...conditions },
+
+      const courses = await CoursePersistence.findAll({
+        where: conditions,
+        raw: true,
       });
-      let data = await Promise.all(
-        list.map(async (item) => {
-          // Fetch students' course data
-          const studentsCourse = await CourseStudentPersistence.findAll({
-            where: { courseId: item.courseId },
-            attributes: ["MSSV"], // Fetch only the required field to optimize query
+
+      const data = await Promise.all(
+        courses.map(async (course) => {
+          const studentsInCourse = await CourseStudentPersistence.findAll({
+            where: { courseId: course.courseId },
+            attributes: ["MSSV"],
             raw: true,
           });
 
-          // Extract student IDs
-          const studentIds = studentsCourse?.map((e) => e?.MSSV);
+          const studentIds = studentsInCourse.map((s) => s.MSSV);
 
-          // Fetch student details if there are any IDs
           const students =
-            studentIds?.length > 0
+            studentIds.length > 0
               ? await StudentPersistence.findAll({
-                  where: {
-                    MSSV: {
-                      [Op.in]: studentIds,
-                    },
-                  },
-                  raw: true, // Optimize: Fetch plain objects directly
+                  where: { MSSV: { [Op.in]: studentIds } },
+                  raw: true,
                 })
               : [];
 
-          // Combine the original item with the fetched students
+          const lecturer = await LecturerPersistence.findOne({
+            where: { lecturerId: course.lecturerId },
+            raw: true,
+          });
+
+          const room = await RoomPersistence.findOne({
+            where: { roomId: course.roomId },
+            raw: true,
+          });
+
           return {
-            ...item.dataValues,
+            ...course,
             students,
-            lecturer: await LecturerPersistence.findOne({
-              where: {
-                lecturerId: item.lecturerId,
-              },
-            }),
-            room: await RoomPersistence.findOne({
-              where: {
-                roomId: item.roomId,
-              },
-            }),
+            lecturer,
+            room,
           };
         })
       );
+
       res.status(200).json({ status: "success", data });
     } catch (error) {
       throw new ApiError(400, error.message);
     }
   }),
-
   show: catchAsync(async (req, res) => {
     try {
       const { id } = req.params;
-      let data = await CoursePersistence.findOne({
-        where: {
-          courseId: id,
-        },
+
+      // Lấy thông tin môn học
+      const course = await CoursePersistence.findOne({
+        where: { courseId: id },
+        raw: true,
       });
 
-      if (data) {
-        const studentsCourse = await CourseStudentPersistence.findAll({
-          where: { courseId: data?.courseId },
-        });
-        const studentIds = studentsCourse?.map((e) => e?.MSSV);
-        console.log("studentIds--------> ", studentIds, studentsCourse);
-        const students =
-          studentIds?.length > 0
-            ? await StudentPersistence.findAll({
-                where: {
-                  MSSV: {
-                    [Op.in]: studentIds,
-                  },
-                },
-                raw: true, // Optimize: Fetch plain objects directly
-              })
-            : [];
-
-        const studentData = [];
-        const schedules = await SchedulePersistence.findAll({
-          where: {
-            courseId: data?.dataValues?.courseId,
-          },
-        });
-        if (students?.length > 0) {
-          for (let e of students) {
-            studentData.push({
-              name: e?.fullName,
-              MSSV: e?.MSSV,
-              id: e?.MSSV,
-              attended: await AttendancePersistence.count({
-                where: {
-                  MSSV: e?.MSSV,
-                  courseId: id,
-                  attended: "Present",
-                },
-              }),
-              total: schedules?.length,
-            });
-          }
-        }
-
-        data = {
-          ...data?.dataValues,
-          students: studentData,
-          schedules,
-          lecturer: await LecturerPersistence.findOne({
-            where: {
-              lecturerId: data?.lecturerId,
-            },
-          }),
-          room: await RoomPersistence.findOne({
-            where: {
-              roomId: data.roomId,
-            },
-          }),
-        };
+      if (!course) {
+        return res
+          .status(404)
+          .json({ status: "error", message: "Môn học không tồn tại" });
       }
+
+      // Lấy danh sách sinh viên của môn học
+      const studentLinks = await CourseStudentPersistence.findAll({
+        where: { courseId: id },
+        attributes: ["MSSV"],
+        raw: true,
+      });
+
+      const studentIds = studentLinks.map((s) => s.MSSV);
+
+      // Lấy thông tin sinh viên
+      const students = studentIds.length
+        ? await StudentPersistence.findAll({
+            where: { MSSV: { [Op.in]: studentIds } },
+            raw: true,
+          })
+        : [];
+
+      // Lấy lịch học
+      const schedules = await SchedulePersistence.findAll({
+        where: { courseId: id },
+        raw: true,
+      });
+
+      const totalSessions = schedules.length;
+
+      // Lấy tất cả điểm danh cho course này, có thể lọc trước để tránh dư
+      // thực hiện sửa do thay đổi csdl, ko còn courseId trong bảng attendance
+      // const allAttendances = await AttendancePersistence.findAll({
+      //   where: {
+      //     courseId: id,
+      //     MSSV: { [Op.in]: studentIds },
+      //     attended: "Present",
+      //   },
+      //   attributes: ["MSSV"],
+      //   raw: true,
+      // });
+      const scheduleIds = schedules.map((s) => s.scheduleId);
+
+      const allAttendances = await AttendancePersistence.findAll({
+        where: {
+          scheduleId: { [Op.in]: scheduleIds },
+          MSSV: { [Op.in]: studentIds },
+          attended: "Present",
+        },
+        attributes: ["MSSV"],
+        raw: true,
+      });
+
+      // Tính số lần có mặt cho mỗi sinh viên
+      const attendanceMap = {};
+      allAttendances.forEach((a) => {
+        if (!attendanceMap[a.MSSV]) {
+          attendanceMap[a.MSSV] = 0;
+        }
+        attendanceMap[a.MSSV]++;
+      });
+
+      // Gộp dữ liệu sinh viên
+      const studentData = students.map((s) => ({
+        name: s.fullName,
+        MSSV: s.MSSV,
+        id: s.MSSV,
+        attended: attendanceMap[s.MSSV] || 0,
+        total: totalSessions,
+      }));
+
+      // Lấy thông tin giảng viên & phòng
+      const lecturer = await LecturerPersistence.findOne({
+        where: { lecturerId: course.lecturerId },
+        raw: true,
+      });
+
+      const room = await RoomPersistence.findOne({
+        where: { roomId: course.roomId },
+        raw: true,
+      });
+
+      const data = {
+        ...course,
+        students: studentData,
+        schedules,
+        lecturer,
+        room,
+      };
+
       res.status(200).json({ status: "success", data });
     } catch (error) {
       throw new ApiError(400, error.message);
     }
   }),
   deleteMethod: catchAsync(async (req, res) => {
+    const transaction = await sequelize.transaction();
     try {
-      // Fetch the corresponding record for the provided type and ID
       const { id } = req.params;
-      let data = await CoursePersistence.findOne({
+
+      const course = await CoursePersistence.findOne({
         where: { courseId: id },
+        transaction,
+        raw: true,
       });
-      if (!data) throw new ApiError(405, `Course with ID ${id} not found`);
-      await CoursePersistence.destroy({ where: { courseId: id } });
-      let result1 = SchedulePersistence.destroy({
+
+      if (!course) {
+        throw new ApiError(404, `Course with ID ${id} not found`);
+      }
+
+      // Xoá dữ liệu liên quan trước
+      await SchedulePersistence.destroy({
         where: { courseId: id },
+        transaction,
       });
-      let result2 = AttendancePersistence.destroy({
+
+      await AttendancePersistence.destroy({
         where: { courseId: id },
+        transaction,
       });
-      CourseStudentPersistence.destroy({ where: { courseId: id } });
+
+      await CourseStudentPersistence.destroy({
+        where: { courseId: id },
+        transaction,
+      });
+
+      // Cuối cùng mới xoá course chính
+      await CoursePersistence.destroy({
+        where: { courseId: id },
+        transaction,
+      });
+
+      await transaction.commit();
       res.status(200).json({ status: "success", data: true });
     } catch (error) {
+      await transaction.rollback();
       throw new ApiError(400, error.message);
     }
   }),
-
   getListAttendance: catchAsync(async (req, res) => {
     try {
       const { id } = req.params;
+
       const course = await CoursePersistence.findOne({
-        where: {
-          courseId: id,
-        },
+        where: { courseId: id },
+        raw: true,
       });
-      console.log(id);
 
-      let data = null;
-      if (course) {
-        let conditions = {};
-        if (req?.query?.studentId) {
-          conditions = {
-            MSSV: req?.query?.studentId,
-          };
-        } else if (req?.query?.parentId) {
-          let listStudents = await StudentPersistence.findAll({
-            where: {
-              parentId: req?.query?.parentId,
-            },
-          });
-          if (listStudents?.length > 0) {
-            const studentsIds = listStudents?.map((item) => item?.MSSV);
-
-            if (studentsIds?.length > 0) {
-              conditions = {
-                MSSV: {
-                  [Op.in]: studentsIds,
-                },
-              };
-            } else {
-              return res.status(200).json({ status: "success", data: [] });
-            }
-          }
-        }
-
-        data = { ...course.dataValues };
-        const listAtt = await AttendancePersistence.findAll({
-          where: {
-            courseId: id,
-            ...conditions,
-          },
-        });
-        let listResult = [];
-        if (listAtt?.length > 0) {
-          for (let item of listAtt) {
-            let student = await StudentPersistence.findOne({
-              where: {
-                MSSV: item?.MSSV,
-              },
-            });
-            let schedule = await SchedulePersistence.findOne({
-              where: {
-                scheduleId: item?.dataValues?.scheduleId,
-              },
-            });
-
-            let checkTime = moment(course?.dataValues?.dateSche).isSameOrAfter(
-              moment(moment().format("yyyy-MM-DD"))
-            );
-
-            if (student) {
-              listResult.push({
-                ...student?.dataValues,
-                ...schedule?.dataValues,
-                attended:
-                  item?.dataValues?.attended == "FALSE"
-                    ? "Absent"
-                    : item?.dataValues?.attended || "Present",
-              });
-            }
-          }
-        }
-        data = {
-          ...data,
-          schedules: await SchedulePersistence.findAll({
-            where: {
-              courseId: id,
-            },
-          }),
-          lecturer: await LecturerPersistence.findOne({
-            where: {
-              lecturerId: data?.lecturerId,
-            },
-          }),
-          room: await RoomPersistence.findOne({
-            where: {
-              roomId: data.roomId,
-            },
-          }),
-          attendances: listResult?.map((e) => ({
-            name: e?.fullName,
-            MSSV: e?.MSSV,
-            dateAtt: e?.dateSche,
-            attended: e?.attended,
-            scheduleId: e?.scheduleId,
-          })),
-        };
+      if (!course) {
+        throw new ApiError(404, `Course with ID ${id} not found`);
       }
+
+      // Xử lý điều kiện lọc theo studentId hoặc parentId
+      const { studentId, parentId } = req.query;
+      let conditions = {};
+
+      if (studentId) {
+        conditions.MSSV = studentId;
+      } else if (parentId) {
+        const students = await StudentPersistence.findAll({
+          where: { parentId },
+          attributes: ["MSSV"],
+          raw: true,
+        });
+        const studentIds = students.map((s) => s.MSSV);
+        if (studentIds.length === 0) {
+          return res.status(200).json({ status: "success", data: [] });
+        }
+        conditions.MSSV = { [Op.in]: studentIds };
+      }
+
+      // Lấy danh sách lịch học theo course
+      const schedules = await SchedulePersistence.findAll({
+        where: { courseId: id },
+        raw: true,
+      });
+
+      const scheduleIds = schedules.map((s) => s.scheduleId);
+
+      // Lấy toàn bộ điểm danh theo lịch học và điều kiện MSSV
+      const attendances = await AttendancePersistence.findAll({
+        where: {
+          scheduleId: { [Op.in]: scheduleIds },
+          ...conditions,
+        },
+        raw: true,
+      });
+
+      const studentIds = [...new Set(attendances.map((a) => a.MSSV))];
+
+      // Lấy thông tin sinh viên và tạo map
+      const students = await StudentPersistence.findAll({
+        where: { MSSV: { [Op.in]: studentIds } },
+        raw: true,
+      });
+
+      const studentMap = Object.fromEntries(students.map((s) => [s.MSSV, s]));
+      const scheduleMap = Object.fromEntries(
+        schedules.map((s) => [s.scheduleId, s])
+      );
+
+      // Xây dựng danh sách kết quả điểm danh
+      const listResult = attendances.map((item) => {
+        const student = studentMap[item.MSSV] || {};
+        const schedule = scheduleMap[item.scheduleId] || {};
+
+        return {
+          name: student.fullName || "Unknown",
+          MSSV: item.MSSV,
+          dateAtt: schedule.dateSche || null,
+          attended:
+            item.attended === "FALSE" ? "Absent" : item.attended || "Present",
+          scheduleId: item.scheduleId,
+        };
+      });
+
+      // Tổng hợp dữ liệu trả về
+      const data = {
+        ...course,
+        schedules, // đã lấy trước đó
+        lecturer: await LecturerPersistence.findOne({
+          where: { lecturerId: course.lecturerId },
+          raw: true,
+        }),
+        room: await RoomPersistence.findOne({
+          where: { roomId: course.roomId },
+          raw: true,
+        }),
+        attendances: listResult,
+      };
 
       res.status(200).json({ status: "success", data });
     } catch (error) {
