@@ -1,4 +1,4 @@
-import { useEffect, useState, createContext, memo, useCallback } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import LecListStudentPage from "./lecturerListStudent";
 import LecturerDetailAttendanceDatePage from "./lecturerDetailAttendanceDate";
@@ -6,10 +6,11 @@ import { formattedDate } from "../../controller/formattedDate";
 import { FiEdit } from "react-icons/fi";
 import PropTypes from "prop-types";
 import { API_SERVICE } from "../../helpers/apiHelper";
+import { filterAttendanceByDate } from "../../helpers/attendanceHelper";
+import LecturerContext from "../../component/lecturerContext";
 import moment from "moment";
 
-export const LecturerContext = createContext();
-
+// Hiển thị thông tin chi tiếttiết môn học
 const CourseInfo = memo(function CourseInfo({ course, handleAddLinkOnline }) {
   return (
     <div className="flex items-center justify-between border border-uit bg-white rounded-lg shadow-lg px-8 py-6 lg:w-96 ">
@@ -38,13 +39,13 @@ const CourseInfo = memo(function CourseInfo({ course, handleAddLinkOnline }) {
         </div>
         <div className="flex justify-between">
           <span className="font-semibold mr-6">Phòng học:</span>
-          <span className="text-blue-700">{course?.roomID}</span>
+          <span className="text-blue-700">{course?.nameRoom}</span>
         </div>
 
         <div className="flex justify-between space-x-4">
           <span className="font-semibold">Online URL:</span>
           <span className="text-blue-700">
-            {course?.onlineURL || course?.onlineUrl}
+            {course?.onlineUrl || "Chưa có"}
           </span>
           <FiEdit
             className="border-2 rounded-md text-uit cursor-pointer transform transition-transform duration-300 hover:scale-110"
@@ -61,79 +62,74 @@ CourseInfo.propTypes = {
   course: PropTypes.object,
   handleAddLinkOnline: PropTypes.func,
 };
-
+// Hiển thị thông tin điểm danh theo ngày có lịch học và thống kê điểm danh theo ngày
 const ScheduleInfo = memo(function ScheduleInfo({
   currentDay,
   setCurrentDay,
   scheduleDate,
   courseCode,
-  course,
+  // course,
 }) {
-  const [attendanceList, setAttendedList] = useState([]);
-  const [listAll, setListAll] = useState([]);
-  const [total, setTotal] = useState({
-    attended: 0,
-    total: 0,
-  });
+  const [attendanceList, setAttendedList] = useState([]); // Danh sách các điểm danh trong ngày được chọn để hiển thị trạng thái điểm danh theo ngày của môn học.
+  const [listAll, setListAll] = useState([]); // Danh sách điểm danh của tất cả sinh viên trong môn học đã được sắp xếp.
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [total, setTotal] = useState({ attended: 0, total: 0 }); // Thống kê điểm danh từng buổi học của môn học.
+
+  const getListAttendances = useCallback(async (code) => {
+    setLoading(true);
+    try {
+      const response = await API_SERVICE.get(`courses/${code}/attendances`);
+      console.log("check res in scheduleInfo: ", response);
+      if (response?.status === "success") {
+        const data = response?.data?.attendances || [];
+        data.sort((a, b) => a.name.localeCompare(b.name));
+        setListAll(data);
+      } else {
+        setError("Không thể tải dữ liệu điểm danh");
+      }
+    } catch (err) {
+      setError("Lỗi khi tải điểm danh");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (courseCode) {
       getListAttendances(courseCode);
     }
-  }, [courseCode]);
+  }, [courseCode, getListAttendances]);
 
-  const getListAttendances = async (code) => {
-    const response = await API_SERVICE.get(`courses/${code}/attendances`);
-    if (response?.status == "success") {
-      let data = response?.data?.attendances;
-      data?.sort((a, b) => a.name.localeCompare(b.name));
-      setListAll(data);
-
-      buildData(currentDay);
+  useEffect(() => {
+    if (currentDay && listAll.length > 0) {
+      const { filtered, stats } = filterAttendanceByDate(listAll, currentDay);
+      setAttendedList(filtered);
+      setTotal(stats);
     }
-  };
+  }, [currentDay, listAll]);
 
-  const buildData = (date, e) => {
-    e?.preventDefault();
-    if (listAll?.length > 0) {
-      let data = listAll?.filter((item) => item?.dateAtt == date);
-      console.log(data);
-      setAttendedList(data);
-      let dataAttend = data?.filter(
-        (e) => e?.attended?.toLowerCase() == "present"
-      );
-      setTotal({
-        attended: dataAttend?.length,
-        total: data?.length,
-      });
-    }
-  };
-
+  if (loading)
+    return <div className="text-uit">Đang tải dữ liệu điểm danh...</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
   return (
     <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-      {/* <h2 className="text-xl text-uit font-semibold text-center">
-        Thông tin lịch dạy hôm nay: {currentDay}
-      </h2> */}
-
       <div className="flex items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6 w-full">
         <div className="flex flex-col space-y-4 text-uit">
           <div className="flex flex-row justify-between items-center">
             <select
-              value={currentDay}
-              onChange={(e) => {
-                setCurrentDay(e.target.value);
-                buildData(e.target.value, e);
-              }}
+              value={scheduleDate.includes(currentDay) ? currentDay : ""}
+              onChange={(e) => setCurrentDay(e.target.value)}
               className="text-center shadow-lg p-4"
             >
               <option value="">Chọn ngày</option>
-              <option value={moment().format("yyyy-MM-DD")}>Hôm nay</option>
-              {course.length === 0 ? (
+              <option value={moment().format("YYYY-MM-DD")}>Hôm nay</option>
+              {Array.isArray(scheduleDate) && scheduleDate.length === 0 ? (
                 <option disabled>Không có lịch dạy</option>
               ) : (
-                scheduleDate.map((date, index) => (
-                  <option key={index} value={date}>
-                    {moment(date).format("DD/MM/yyyy")}
+                scheduleDate.map((date) => (
+                  <option key={date} value={date}>
+                    {moment(date).format("DD/MM/YYYY")}
                   </option>
                 ))
               )}
@@ -159,10 +155,10 @@ ScheduleInfo.propTypes = {
   currentDay: PropTypes.string,
   setCurrentDay: PropTypes.func,
   scheduleDate: PropTypes.array,
+  // course: PropTypes.object,
   courseCode: PropTypes.string,
-  attendanceStatsOfClass: PropTypes.object,
 };
-
+// Hiển thị danh sách sinh viên và thông kê điểm danh trong môn học đó theo từng sinh viên
 const StudentList = memo(function StudentList({
   courseCode,
   course,
@@ -198,15 +194,13 @@ StudentList.propTypes = {
 
 export default memo(function LecturerDetailCoursePage() {
   const { courseCode } = useParams();
+
   const [course, setCourse] = useState({});
   const [showModal, setShowModal] = useState(false);
-  const [onlineURL, setOnlineURL] = useState("");
-  const [studentList, setStudentList] = useState([]);
-  const [scheduleDate, setScheduleDate] = useState([""]);
-  const [attendanceStatsOfClass, setAttendanceStatsOfClass] = useState({
-    attended: 0,
-    total: 0,
-  });
+  const [onlineUrl, setOnlineUrl] = useState("");
+  const [studentList, setStudentList] = useState([]); // danh sách sinh viên của môn học
+  const [scheduleDate, setScheduleDate] = useState([]); // danh sách lịch học của môn học
+
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [activeTab, setActiveTab] = useState(1);
 
@@ -216,15 +210,22 @@ export default memo(function LecturerDetailCoursePage() {
       try {
         const response = await API_SERVICE.put("courses/link/" + courseCode, {
           ...course,
-          onlineUrl: onlineURL,
+          onlineUrl: onlineUrl,
         });
-        console.log("Add online link success");
-        setShowModal(false);
+        if (response?.status === "success") {
+          setShowModal(false);
+          setOnlineUrl("");
+          setCourse((prev) => ({ ...prev, onlineUrl }));
+          alert("Cập nhật thành công!");
+        } else {
+          console.error("Cập nhật link học online thất bại:", response);
+          alert("Cập nhật link học online thất bại.");
+        }
       } catch (error) {
         console.log(error);
       }
     },
-    [courseCode, onlineURL]
+    [courseCode, onlineUrl, course]
   );
 
   const handleAddLinkOnline = useCallback((e) => {
@@ -233,27 +234,43 @@ export default memo(function LecturerDetailCoursePage() {
   }, []);
 
   const getDetailData = async (code) => {
-    const response = await API_SERVICE.get("courses/" + code);
-    if (response?.status == "success") {
-      let items = {
-        ...response?.data,
-        startDay: moment(response?.data?.startDay).format("DD/MM/yyyy"),
-        code: response?.data?.courseId,
-        name: response?.data?.nameCourse,
-        week: response?.data?.numberWeek,
-        week: response?.data?.numberWeek,
-        roomID: response?.data?.roomId,
-        onlineURL: response?.data?.onlineURL,
-      };
-      setCourse(items);
-      setStudentList(response?.data?.students);
-      let date = response?.data?.schedules
-        ?.map((item) => item.dateSche)
-        ?.sort((a, b) => moment(a).diff(moment(b)));
-
-      setScheduleDate(date);
-
-      console.log("data-----------> ", date);
+    try {
+      const response = await API_SERVICE.get("courses/" + code);
+      // console.log("check res mon hoc: ", response);
+      const { data, status } = response;
+      const {
+        startDay,
+        courseId,
+        nameCourse,
+        numberWeek,
+        room,
+        onlineUrl,
+        students,
+        schedules,
+      } = data;
+      if (status === "success") {
+        let items = {
+          ...data,
+          startDay: moment(startDay).format("DD/MM/YYYY"),
+          code: courseId,
+          name: nameCourse,
+          week: numberWeek,
+          nameRoom: room.nameRoom || "Chưa rõ",
+          onlineUrl: onlineUrl,
+        };
+        setCourse(items);
+        if (Array.isArray(students)) setStudentList(students);
+        if (Array.isArray(schedules)) {
+          const date = [
+            ...new Set(schedules.map((item) => item.dateSche)),
+          ].sort((a, b) => moment(a).diff(moment(b)));
+          setScheduleDate(date);
+        }
+      } else {
+        console.error("Failed to fetch course detail", response);
+      }
+    } catch (err) {
+      console.error("Error fetching course:", err);
     }
   };
 
@@ -267,9 +284,9 @@ export default memo(function LecturerDetailCoursePage() {
     studentList,
     courseCode,
     currentDay,
-    startDay: course ? course.startDay : null,
+    startDay: course?.startDay,
   };
-
+  // console.log("check lich hoc seted: ", scheduleDate);
   return (
     <LecturerContext.Provider value={values}>
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
@@ -311,9 +328,8 @@ export default memo(function LecturerDetailCoursePage() {
             currentDay={currentDay}
             setCurrentDay={setCurrentDay}
             scheduleDate={scheduleDate}
-            course={course}
+            // course={course}
             courseCode={courseCode}
-            attendanceStatsOfClass={attendanceStatsOfClass}
           />
         )}
         {activeTab === 3 && (
@@ -339,8 +355,8 @@ export default memo(function LecturerDetailCoursePage() {
                 <input
                   id="onlineLink"
                   type="text"
-                  value={onlineURL}
-                  onChange={(e) => setOnlineURL(e.target.value)}
+                  value={onlineUrl}
+                  onChange={(e) => setOnlineUrl(e.target.value)}
                   className="w-full px-3 py-2 border rounded-lg"
                 />
               </div>

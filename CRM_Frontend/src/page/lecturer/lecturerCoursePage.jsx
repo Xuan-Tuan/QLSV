@@ -10,6 +10,7 @@ export default memo(function LecturerCoursePage() {
   const { currentUser } = useAuth();
   const navigate = useNavigate();
   const [courseLec, setCourseLec] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleClickCourse = useCallback(
     (e, courseID) => {
@@ -35,25 +36,37 @@ export default memo(function LecturerCoursePage() {
     [navigate]
   );
 
-  useEffect(() => {
-    getListData();
-  }, []);
-
-  const getListData = async () => {
-    console.log(currentUser);
-    const response = await API_SERVICE.get("courses", {
-      lecturerId: currentUser?.lecturerId,
-    });
-    if (response?.status == "success") {
-      let data = response?.data?.map((item) => {
-        item.code = item.courseId;
-        item.id = item.courseId;
-        item.name = item.nameCourse || item.courseName;
-        return item;
+  const getListData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await API_SERVICE.get("courses", {
+        lecturerId: currentUser?.lecturerId,
       });
-      setCourseLec(data);
+      if (response?.status == "success" && response?.data) {
+        const data = response.data.map((item) => ({
+          ...item,
+          code: item.courseId,
+          id: item.courseId,
+          name: item.courseName,
+        }));
+        setCourseLec(data);
+      } else {
+        console.error(
+          "Lỗi lấy danh sách khóa học:",
+          response?.message || "unknown error"
+        );
+      }
+    } catch (err) {
+      console.error("Lỗi gọi API:", err);
     }
-  };
+    setLoading(false);
+  }, [currentUser]);
+
+  useEffect(() => {
+    if (currentUser?.lecturerId) {
+      getListData();
+    }
+  }, [currentUser, getListData]);
 
   return (
     <div className="h-[calc(100vh-70px-50px)]">
@@ -63,10 +76,12 @@ export default memo(function LecturerCoursePage() {
         </div>
       </div>
       <div className="h-[calc(100vh-70px-50px-80px)]  md:w-3/5  w-full lg:mr-20 lg:ml-20 shadow-lg flex flex-col gap-5 p-5 overflow-y-scroll will-change-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
-        {courseLec ? (
-          courseLec.map((course, index) => (
+        {loading ? (
+          <p className="text-center">Đang tải dữ liệu...</p>
+        ) : courseLec.length > 0 ? (
+          courseLec.map((course) => (
             <div
-              key={index}
+              key={course.id}
               className="flex flex-row justify-between items-center px-8 py-4 my-5 bg-white rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-200"
             >
               <div className="flex flex-col text-start text-uit text-base font-bold">
@@ -74,7 +89,7 @@ export default memo(function LecturerCoursePage() {
                 <p className="mb-2">Mã môn học: {course.code}</p>
                 <p className="mb-2">
                   Thời gian bắt đầu:{" "}
-                  {moment(course.startDay).format("DD/MM/yyyy")}
+                  {moment(course.startDay).format("DD/MM/YYYY")}
                 </p>
               </div>
               <div className="flex flex-row justify-between">

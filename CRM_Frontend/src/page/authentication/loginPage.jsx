@@ -17,21 +17,39 @@ export default function LoginPage() {
     password: "",
   });
 
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setUserCredentials((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   useEffect(() => {
     doSignOut();
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("profile");
+    localStorage.removeItem("role");
     setCurrentUser(null);
-  }, []);
+  }, [setCurrentUser]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setLoading(true); // Bắt đầu loading
+    setLoading(true);
     try {
       const response = await doSignInWithEmailAndPassword(
         userCredentials.email,
         userCredentials.password
       );
-      if (response?.status == "success") {
-        const { token, profile, role } = response?.data;
+      if (response?.status === "success" && response?.data) {
+        const { token, profile, role } = response.data;
+        const allowedRoles = ["student", "admin", "lecturer", "parent"];
+        if (!allowedRoles.includes(role)) {
+          alert(
+            "Phân quyền tài khoản không hợp lệ. Vui lòng liên hệ quản trị viên."
+          );
+          return;
+        }
         localStorage.setItem("access_token", token);
         localStorage.setItem("profile", JSON.stringify(profile));
         localStorage.setItem("role", role);
@@ -45,8 +63,9 @@ export default function LoginPage() {
       }
     } catch (error) {
       console.error(error);
+      alert("Có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
-      setLoading(false); // Kết thúc loading dù login thành công hay lỗi
+      setLoading(false);
     }
   };
 
@@ -79,13 +98,9 @@ export default function LoginPage() {
                   type="email"
                   autoComplete="email"
                   required
+                  value={userCredentials.email}
+                  onChange={handleChange}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                  onChange={(e) =>
-                    setUserCredentials({
-                      ...userCredentials,
-                      email: e.target.value,
-                    })
-                  }
                 />
               </div>
             </div>
@@ -105,12 +120,8 @@ export default function LoginPage() {
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  onChange={(e) =>
-                    setUserCredentials({
-                      ...userCredentials,
-                      password: e.target.value,
-                    })
-                  }
+                  value={userCredentials.password}
+                  onChange={handleChange}
                   required
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback, memo } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { doSignOut } from "../../controller/authController";
 import { useAuth } from "../../controller/authController";
 
@@ -15,22 +15,27 @@ export default memo(function AccountInfor() {
   });
   const navigator = useNavigate();
 
-  const handleLogOut = useCallback(async (e) => {
-    e.preventDefault();
-    try {
-      await doSignOut();
-      navigator("/login");
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+  const handleLogOut = useCallback(
+    async (e) => {
+      e.preventDefault();
+      try {
+        await doSignOut();
+        navigator("/login");
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    [navigator]
+  );
 
   useEffect(() => {
     if (currentUser) {
-      setUserInfo(currentUser);
+      setUserInfo({
+        ...currentUser,
+        role: role || "",
+      });
     }
-    // console.log("Info Login: ", currentUser);
-  }, [currentUser]);
+  }, [currentUser, role]);
 
   const getRoleDisplayName = useCallback((role) => {
     switch (role) {
@@ -77,16 +82,15 @@ export default memo(function AccountInfor() {
           <button className="bg-blue-500 text-white px-4 py-2 rounded-2xl mr-2 transform transition-transform hover:scale-105">
             Chỉnh sửa
           </button>
-          <NavLink
+          <button
             to={"/login"}
             onClick={(e) => {
               handleLogOut(e);
             }}
+            className="bg-red-500 text-white px-4 py-2 rounded-2xl transform transition-transform hover:scale-105"
           >
-            <button className="bg-red-500 text-white px-4 py-2 rounded-2xl transform transition-transform hover:scale-105">
-              Đăng xuất
-            </button>
-          </NavLink>
+            Đăng xuất
+          </button>
         </div>
       </div>
     </div>

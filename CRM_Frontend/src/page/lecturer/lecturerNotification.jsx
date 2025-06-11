@@ -12,6 +12,21 @@ export default memo(function LecturerNotification() {
   const [showModal, setShowModal] = useState(false);
   const { courseCode } = useParams();
 
+  const getListData = async () => {
+    const response = await API_SERVICE.get("infos", {});
+    console.log("info------->", response);
+    if (response?.status == "success") {
+      let data = response?.data
+        ?.filter((item) => item?.course?.lecturerId == currentUser?.lecturerId)
+        .map((item) => {
+          item.id = item.infoId;
+
+          return item;
+        });
+      setInfoList(data);
+    }
+  };
+
   const handleInfoSubmit = useCallback(
     async (e) => {
       e.preventDefault();
@@ -32,21 +47,24 @@ export default memo(function LecturerNotification() {
         console.log(error);
       }
     },
-    [info, courseCode]
+    [info, courseCode, getListData]
   );
 
-  const handleDeleteInfo = useCallback(async (e, id) => {
-    e.preventDefault();
-    try {
-      const response = await API_SERVICE.delete("infos/" + id);
-      if (response?.status == "success") {
-        getListData();
-        console.log("Delete info success");
+  const handleDeleteInfo = useCallback(
+    async (e, id) => {
+      e.preventDefault();
+      try {
+        const response = await API_SERVICE.delete("infos/" + id);
+        if (response?.status == "success") {
+          getListData();
+          console.log("Delete info success");
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+    },
+    [getListData]
+  );
 
   const handleClickAddNotice = useCallback((e) => {
     e.preventDefault();
@@ -55,24 +73,8 @@ export default memo(function LecturerNotification() {
 
   useEffect(() => {
     getListData();
-  }, []);
+  }, [getListData]);
   const { currentUser } = useAuth();
-
-  const getListData = async () => {
-    const response = await API_SERVICE.get("infos", {});
-    console.log("info------->", response);
-    if (response?.status == "success") {
-      let data = response?.data
-        ?.filter((item) => item?.course?.lecturerId == currentUser?.lecturerId)
-        .map((item) => {
-          item.id = item.infoId;
-
-          return item;
-        });
-      setInfoList(data);
-    }
-  };
-
   return (
     <div className="h-[calc(100vh-70px-50px)]">
       <div className="text-base p-4 font-bold text-left pl-10 text-blue-700">

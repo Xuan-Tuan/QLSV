@@ -5,9 +5,17 @@ import { useAuth } from "../../controller/authController";
 import moment from "moment";
 import { API_SERVICE } from "../../helpers/apiHelper";
 
+const getAttendanceStatus = (attended) => {
+  if (attended === "Watching") return "Theo dõi";
+  if (attended === "Absent") return "Vắng mặt";
+  return "Đã điểm danh";
+};
+
 export default memo(function ParentDetailCoursePage() {
+  const STATUS_SUCCESS = "success";
   const { courseCode } = useParams();
   const { currentUser } = useAuth();
+
   const [course, setCourse] = useState({});
   const [schedule, setSchedule] = useState([]);
   const [attended, setAttended] = useState("Absent");
@@ -18,145 +26,174 @@ export default memo(function ParentDetailCoursePage() {
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [scheduleList, setScheduleList] = useState([]);
 
-  useEffect(() => {
-    if (courseCode) {
-      getListData(courseCode);
-    }
-  }, [courseCode]);
+  const filterAttendanceByDate = useCallback(
+    (attendances, date = currentDay) => {
+      const current = moment(date);
+      if (attendances?.length > 0) {
+        const attendancesForDate = attendances.filter((item) =>
+          moment(item?.dateAtt).isSame(current, "day")
+        );
 
-  const getListData = async (code) => {
-    const response = await API_SERVICE.get(`courses/${code}/attendances`, {
-      parentId: currentUser?.parentId,
-    });
-    if (response?.status == "success") {
-      let schedules = response?.data?.schedules;
-      let uniqueDates = [
-        ...new Set(schedules?.map((schedule) => schedule?.dateSche)),
-      ];
+        const present = attendancesForDate.some(
+          (item) => item.attended?.toLowerCase() === "present"
+        );
 
-      // Sort the unique dates
-      uniqueDates.sort((a, b) => (moment(a).isAfter(moment(b)) ? 1 : -1));
-      console.log("schedules---------> ", uniqueDates);
+        if (attendancesForDate.length > 0) {
+          const status = attendancesForDate[0].attended?.toLowerCase();
+          if (status === "absent") setAttended("Absent");
+          else if (status === "watching") setAttended("Watching");
+          else if (present) setAttended("Present");
+        } else {
+          setAttended("Absent");
+        }
 
-      setScheduleList(uniqueDates);
-      let items = {
-        ...response?.data,
-        startDay: moment(response?.data?.startDay).format("DD/MM/yyyy"),
-        code: response?.data?.courseId,
-        name: response?.data?.nameCourse,
-        lecturerName: response?.data?.lecturer?.fullName,
-        week: response?.data?.numberWeek,
-        week: response?.data?.numberWeek,
-        roomID: response?.data?.roomId,
-        onlineURL: response?.data?.onlineURL,
-      };
-      setCourse(items);
-      buildData(currentDay, items?.attendances);
-    }
-  };
-
-  const buildData = (date, dataOld, e) => {
-    e?.preventDefault();
-    if (dataOld?.length > 0) {
-      let data = dataOld?.filter((item) => item?.dateAtt == date);
-      console.log("data--------> ", date, data);
-
-      let dataAttend = data?.filter(
-        (e) => e?.attended?.toLowerCase() == "present"
-      );
-      if (moment(date).isAfter(moment(moment().format("YYYY-MM-DD")))) {
-        setAttended("Watching");
-      } else if (dataAttend?.length > 0) {
-        setAttended("Present");
-      } else {
-        setAttended("Absent");
+        setSchedule(attendancesForDate);
       }
 
-      setSchedule(data);
+      const attendedTotal = attendances?.filter(
+        (e) => e?.attended?.toLowerCase() === "present"
+      ).length;
 
       setAttendanceStats({
-        attended: dataAttend?.length,
-        total: dataOld?.length,
+        attended: attendedTotal,
+        total: attendances?.length || 0,
       });
+    },
+    [currentDay]
+  );
+
+  const fetchCourseData = useCallback(
+    async (code) => {
+      try {
+        const response = await API_SERVICE.get(`courses/${code}/attendances`, {
+          parentId: currentUser?.parentId,
+        });
+
+        const { status, data } = response;
+
+        if (status !== STATUS_SUCCESS || !data) {
+          console.warn("Lỗi khi lấy dữ liệu khoá học hoặc dữ liệu rỗng");
+          return;
+        }
+
+        const {
+          courseId,
+          nameCourse,
+          lecturer,
+          numberWeek,
+          room,
+          schedules,
+          startDay,
+          attendances,
+          onlineURL,
+          onlineUrl,
+          startTime,
+          endTime,
+        } = data;
+
+        const sortedSchedules = [...(schedules || [])].sort((a, b) =>
+          moment(a?.dateSche).diff(moment(b?.dateSche))
+        );
+        setScheduleList(sortedSchedules);
+
+        const courseInfo = {
+          code: courseId,
+          name: nameCourse,
+          lecturerName: lecturer?.fullName || "Chưa rõ",
+          startDay: moment(startDay).format("DD/MM/YYYY"),
+          week: numberWeek,
+          nameRoom: room?.nameRoom || "Chưa rõ",
+          attendances: attendances || [],
+          onlineURL: onlineURL || onlineUrl || "",
+          startTime: startTime || "",
+          endTime: endTime || "",
+        };
+        setCourse(courseInfo);
+
+        filterAttendanceByDate(courseInfo.attendances);
+      } catch (error) {
+        console.error("Lỗi khi gọi API lấy dữ liệu khoá học:", error);
+      }
+    },
+    [currentUser, filterAttendanceByDate]
+  );
+
+  useEffect(() => {
+    if (courseCode) {
+      fetchCourseData(courseCode);
     }
-  };
+  }, [courseCode, fetchCourseData]);
+
   return (
     <div className="h-[calc(100vh-70px-50px)] flex flex-col lg:flex-row justify-evenly p-8 bg-gray-50">
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-2xl text-uit font-semibold mr-4 text-center">
+        <h2 className="text-2xl text-uit font-semibold text-center">
           Môn học: {course.name}
         </h2>
-        <div className="flex items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
+        <div className="flex items-center justify-center bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
           <div className="flex flex-col space-y-4 text-uit text-lg">
             <div className="flex justify-between">
-              <span className="font-semibold mr-4">Giáo viên:</span>
-              <span className="text-blue-700">{course.lecturerName}</span>
-            </div>
-            <div className="flex justify-between flex-col">
-              <div className="flex flex-row justify-between">
-                <span className="font-semibold mr-4 ">Ngày bắt đầu:</span>
-                <span className="text-blue-700">{course.startDay}</span>
-              </div>
-            </div>
-            <div className="flex flex-col justify-between items-center">
-              <div className="flex justify-between">
-                <span className="font-semibold mr-4">Từ:</span>
-                <span className="text-blue-700">{course.startTime}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold mr-4">Đến:</span>
-                <span className="text-blue-700">{course.endTime}</span>
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <span className="font-semibold mr-4">Tuần học:</span>
-              <span className="text-blue-700">{course.week} Tuần</span>
+              <span className="font-semibold">Giáo viên:</span>
+              <span>{course.lecturerName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold mr-4">Phòng học:</span>
-              <span className="text-blue-700">{course.roomID}</span>
+              <span className="font-semibold">Ngày bắt đầu:</span>
+              <span>{course.startDay}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold">Từ:</span>
+              <span>{course.startTime}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold">Đến:</span>
+              <span>{course.endTime}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold">Tuần học:</span>
+              <span>{course.week} Tuần</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold">Phòng học:</span>
+              <span>{course.nameRoom}</span>
             </div>
           </div>
         </div>
       </div>
 
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-2xl text-uit font-semibold mr-4 text-center">
-          Thông tin lịch học hôm nay: {moment(currentDay).format("DD/MM/yyyy")}
+        <h2 className="text-xl text-uit font-semibold text-center">
+          Thông tin lịch học ngày: {currentDay}
         </h2>
-        <div className="border border-uit bg-white rounded-lg shadow-lg p-4 font-bold text-base text-uit">
+        <div className="bg-white rounded-lg shadow-lg p-4 font-bold text-base text-uit">
           <select
             value={currentDay}
             onChange={(e) => {
-              setCurrentDay(e.target.value);
-              buildData(e?.target?.value, course?.attendances, e);
+              const newDate = e.target.value;
+              setCurrentDay(newDate);
+              filterAttendanceByDate(course?.attendances, newDate);
             }}
           >
-            <option value="">Select date</option>
+            <option value="">Chọn ngày</option>
             <option value={formattedDate(new Date())}>Hôm nay</option>
-            {scheduleList &&
-              scheduleList.map((date) => (
-                <option key={date} value={date}>
-                  {moment(date).format("DD/MM/yyyy")}
-                </option>
-              ))}
+            {scheduleList?.map((item) => (
+              <option key={item.dateSche} value={item.dateSche}>
+                {moment(item.dateSche).format("DD/MM/YYYY")}
+              </option>
+            ))}
           </select>
         </div>
-        <div className="flex items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
+        <div className="flex items-center justify-center bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
           <div className="flex flex-col space-y-4 text-uit text-lg">
             {schedule && schedule.length !== 0 ? (
-              <div key={schedule[0].id}>
+              <div>
                 <div className="flex justify-between">
-                  <span className="font-semibold ">Online URL:</span>
+                  <span className="font-semibold">Online URL:</span>
                   <span className="text-blue-700">
                     {course?.onlineURL || course?.onlineUrl}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="font-semibold mr-1">
-                    Trạng thái điểm danh:
-                  </span>
+                  <span className="font-semibold">Trạng thái điểm danh:</span>
                   <span
                     className={
                       attended === "Watching"
@@ -166,28 +203,34 @@ export default memo(function ParentDetailCoursePage() {
                         : "text-green-500"
                     }
                   >
-                    {attended === "Watching"
-                      ? "Theo dõi"
-                      : attended === "Absent"
-                      ? "Vắng mặt"
-                      : "Đã điểm danh"}
+                    {getAttendanceStatus(attended)}
                   </span>
                 </div>
               </div>
             ) : (
-              <div className=" flex justify-center items-center font-bold text-red-500 text-xl ">
+              <div className="text-center text-red-500 text-xl font-bold">
                 Không có lịch học
               </div>
             )}
             <div className="flex justify-between border border-uit bg-white rounded-lg shadow-lg p-4">
-              <span className="font-semibold mr-4">Trạng thái điểm danh:</span>
-              <span className="font-semibold mr-4">
-                <span className="text-green-500">
-                  {attendanceStats.attended}
+              <div>
+                <span className="font-semibold">Thống kê:</span>{" "}
+                <span className="font-semibold">
+                  <span className="text-green-500">
+                    {attendanceStats.attended}
+                  </span>
+                  {" / "}
+                  <span className="text-gray-700">{attendanceStats.total}</span>
                 </span>
-                {" / "}
-                <span className="text-red-500">{attendanceStats.total}</span>
-              </span>
+              </div>
+
+              <div className="font-semibold">
+                Tiến độ:{" "}
+                {Math.round(
+                  (attendanceStats.attended / attendanceStats.total) * 100
+                )}
+                %
+              </div>
             </div>
           </div>
         </div>

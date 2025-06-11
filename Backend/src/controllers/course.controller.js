@@ -12,7 +12,7 @@ const {
   formattedDate,
 } = require("../utils/common");
 const { sequelize } = require("../config/sequelize");
-const { Op } = require("sequelize");
+const { Op, Sequelize } = require("sequelize");
 const { CoursePersistence } = require("../model/course");
 const { CourseStudentPersistence } = require("../model/courseStudent");
 const { StudentPersistence } = require("../model/student");
@@ -22,7 +22,9 @@ const { SchedulePersistence } = require("../model/schedule");
 const { AttendancePersistence } = require("../model/attendance");
 const moment = require("moment");
 const validateTime = (timeString) => {
-  return moment(timeString, "HH:mm", true)?.format("HH:mm:ss");
+  const time = moment(timeString, "HH:mm", true);
+  if (!time.isValid()) return null;
+  return time.format("HH:mm:ss");
 };
 
 const controller = {
@@ -330,6 +332,7 @@ const controller = {
       throw new ApiError(400, error.message);
     }
   }),
+  //lấy danh sách môn học của từng rolerole
   getList: catchAsync(async (req, res) => {
     try {
       const { lecturerId, studentId, parentId } = req.query;
@@ -544,23 +547,6 @@ const controller = {
         throw new ApiError(404, `Course with ID ${id} not found`);
       }
 
-      // Xoá dữ liệu liên quan trước
-      await SchedulePersistence.destroy({
-        where: { courseId: id },
-        transaction,
-      });
-
-      await AttendancePersistence.destroy({
-        where: { courseId: id },
-        transaction,
-      });
-
-      await CourseStudentPersistence.destroy({
-        where: { courseId: id },
-        transaction,
-      });
-
-      // Cuối cùng mới xoá course chính
       await CoursePersistence.destroy({
         where: { courseId: id },
         transaction,

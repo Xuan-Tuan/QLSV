@@ -9,10 +9,6 @@ export default memo(function Footer() {
             Hệ thống <br />
             quản lý sinh viên
           </div>
-          <div className="flex flex-col items-center">
-            <div>Mọi thắc mắc, tư vấn vấn và sự cố kỹ thuật</div>
-            <div>vui lòng xem thông tin liên hệ</div>
-          </div>
         </div>
         <div className="flex justify-between px-8">
           <div className="pr-4">Thông tin liên hệ</div>

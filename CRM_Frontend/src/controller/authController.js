@@ -2,23 +2,29 @@ import { useContext } from "react";
 import { AuthContext } from "../component/authContext";
 import { API_SERVICE } from "../helpers/apiHelper";
 
+/**
+ * Custom hook để dùng AuthContext
+ */
 const useAuth = () => {
-  return useContext(AuthContext);
-};
-
-const doSignInWithEmailAndPassword = async (email, password) => {
-  try {
-    const res = await API_SERVICE.post("auth/login", { email, password });
-    return res;
-  } catch (error) {
-    console.error("Login error:", error);
-    throw error;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
   }
+  return context;
 };
 
-// const doSignOut = () => {
-//   localStorage.clear();
-// };
+/**
+ * Gọi API đăng nhập
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<{status: string, data?: any, message?: string}>}
+ */
+const doSignInWithEmailAndPassword = async (email, password) => {
+  const result = await API_SERVICE.post("auth/login", { email, password });
+
+  // Trả về đối tượng chứa status/data/message để LoginPage xử lý
+  return result;
+};
 
 const doSignOut = () => {
   localStorage.removeItem("access_token");
@@ -26,4 +32,4 @@ const doSignOut = () => {
   localStorage.removeItem("role");
 };
 
-export { doSignInWithEmailAndPassword, doSignOut, useAuth };
+export { useAuth, doSignInWithEmailAndPassword, doSignOut };

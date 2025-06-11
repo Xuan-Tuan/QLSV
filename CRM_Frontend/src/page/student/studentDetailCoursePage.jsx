@@ -1,11 +1,18 @@
 import { useParams } from "react-router-dom";
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, memo, useCallback } from "react";
 import { formattedDate } from "../../controller/formattedDate";
 import { useAuth } from "../../controller/authController";
 import { API_SERVICE } from "../../helpers/apiHelper";
 import moment from "moment";
 
+const getAttendanceStatus = (attended) => {
+  if (attended === "Watching") return "Theo dõi";
+  if (attended === "Absent") return "Vắng mặt";
+  return "Đã điểm danh";
+};
+
 export default memo(function StudentDetailCoursePage() {
+  const STATUS_SUCCESS = "success";
   const { courseCode } = useParams();
   const { currentUser } = useAuth();
   const [course, setCourse] = useState({});
@@ -18,75 +25,103 @@ export default memo(function StudentDetailCoursePage() {
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [scheduleList, setScheduleList] = useState([]);
 
+  const filterAttendanceByDate = useCallback(
+    (attendances, date = currentDay) => {
+      const current = moment(date);
+      if (attendances?.length > 0) {
+        const attendancesForDate = attendances.filter((item) =>
+          moment(item?.dateAtt).isSame(current, "day")
+        );
+
+        const present = attendancesForDate.some(
+          (item) => item.attended?.toLowerCase() === "present"
+        );
+
+        if (attendancesForDate.length > 0) {
+          const status = attendancesForDate[0].attended?.toLowerCase();
+          if (status === "absent") setAttended("Absent");
+          else if (status === "watching") setAttended("Watching");
+          else if (present) setAttended("Present");
+        } else {
+          setAttended("Absent");
+        }
+
+        setSchedule(attendancesForDate);
+      }
+    },
+    [currentDay]
+  );
+
+  const fetchCourseData = useCallback(
+    async (code) => {
+      try {
+        const response = await API_SERVICE.get(`courses/${code}/attendances`, {
+          studentId: currentUser?.MSSV,
+        });
+
+        const { status, data } = response;
+
+        if (status !== STATUS_SUCCESS || !data) {
+          console.warn("Lỗi khi lấy dữ liệu khóa học hoặc dữ liệu rỗng");
+          return;
+        }
+
+        const {
+          courseId,
+          nameCourse,
+          lecturer,
+          numberWeek,
+          room,
+          schedules,
+          startDay,
+          attendances,
+          onlineURL,
+          onlineUrl,
+          startTime,
+          endTime,
+        } = data;
+
+        const sortedSchedules = [...(schedules || [])].sort((a, b) =>
+          moment(a?.dateSche).diff(moment(b?.dateSche))
+        );
+        setScheduleList(sortedSchedules);
+
+        const courseInfo = {
+          code: courseId,
+          name: nameCourse,
+          lecturerName: lecturer?.fullName || "Chưa rõ",
+          startDay: moment(startDay).format("DD/MM/YYYY"),
+          week: numberWeek,
+          nameRoom: room?.nameRoom || "Chưa rõ",
+          attendances: attendances || [],
+          onlineURL: onlineURL || onlineUrl || "",
+          startTime: startTime || "",
+          endTime: endTime || "",
+        };
+        setCourse(courseInfo);
+
+        filterAttendanceByDate(courseInfo.attendances);
+
+        const attendedTotal = courseInfo.attendances.filter(
+          (e) => e?.attended?.toLowerCase() === "present"
+        ).length;
+
+        setAttendanceStats({
+          attended: attendedTotal,
+          total: courseInfo.attendances.length || 0,
+        });
+      } catch (error) {
+        console.error("Lỗi khi gọi API lấy dữ liệu khóa học:", error);
+      }
+    },
+    [currentUser, filterAttendanceByDate]
+  );
+
   useEffect(() => {
     if (courseCode) {
-      getListData(courseCode);
+      fetchCourseData(courseCode);
     }
-  }, [courseCode]);
-
-  const getListData = async (code) => {
-    const response = await API_SERVICE.get(`courses/${code}/attendances`, {
-      studentId: currentUser?.MSSV,
-    });
-    console.log("response---------> ", response);
-
-    if (response?.status == "success") {
-      let date = response?.data?.schedules?.sort((a, b) =>
-        moment(a?.dateSche).diff(moment(b?.dateSche))
-      );
-      console.log(date);
-      setScheduleList(date);
-      let items = {
-        ...response?.data,
-        startDay: moment(response?.data?.startDay).format("DD/MM/yyyy"),
-        code: response?.data?.courseId,
-        name: response?.data?.nameCourse,
-        lecturerName: response?.data?.lecturer?.fullName,
-        week: response?.data?.numberWeek,
-        week: response?.data?.numberWeek,
-        roomID: response?.data?.roomId,
-        onlineURL: response?.data?.onlineURL,
-      };
-      setCourse(items);
-      buildData(currentDay, items?.attendances);
-    }
-  };
-  const buildData = (date, dataOld, e) => {
-    e?.preventDefault(); // Ngăn hành động mặc định nếu có event
-
-    if (dataOld?.length > 0) {
-      // Lọc ra dữ liệu phù hợp với ngày hiện tại
-      let data = dataOld?.filter((item) => item?.dateAtt == date);
-      console.log("data--------> ", date, data);
-
-      // Kiểm tra trạng thái điểm danh
-      let dataAttend = data?.filter(
-        (e) => e?.attended?.toLowerCase() === "present"
-      );
-
-      // Thiết lập trạng thái điểm danh
-      if (data.length > 0) {
-        if (data[0].attended?.toLowerCase() === "false") {
-          setAttended("Absent"); // Nếu API trả về "false", trạng thái là "Vắng mặt"
-        } else if (data[0].attended?.toLowerCase() === "watching") {
-          setAttended("Watching"); // Theo dõi
-        } else if (dataAttend?.length > 0) {
-          setAttended("Present"); // Điểm danh
-        }
-      } else {
-        setAttended("Absent"); // Mặc định là vắng mặt nếu không có dữ liệu
-      }
-
-      // Cập nhật lịch trình cho ngày đã chọn
-      setSchedule(data);
-
-      // Cập nhật thống kê điểm danh
-      setAttendanceStats({
-        attended: dataAttend?.length, // Số lần "present"
-        total: dataOld?.length, // Tổng số lịch trình
-      });
-    }
-  };
+  }, [courseCode, fetchCourseData]);
 
   return (
     <div className="h-[calc(100vh-70px-50px)] flex flex-col lg:flex-row justify-evenly p-8 bg-gray-50">
@@ -125,7 +160,7 @@ export default memo(function StudentDetailCoursePage() {
             </div>
             <div className="flex justify-between">
               <span className="font-semibold mr-4 text-uit">Phòng học:</span>
-              <span>{course.roomID}</span>
+              <span>{course.nameRoom}</span>
             </div>
           </div>
         </div>
@@ -133,22 +168,23 @@ export default memo(function StudentDetailCoursePage() {
 
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
         <h2 className="text-xl text-uit font-semibold mr-4 text-center">
-          Thông tin lịch học hôm nay: {currentDay}
+          Thông tin lịch học ngày: {currentDay}
         </h2>
         <div className=" bg-white rounded-lg shadow-lg p-4 font-bold text-base text-uit">
           <select
             value={currentDay}
             onChange={(e) => {
-              setCurrentDay(e.target.value);
-              buildData(e?.target?.value, course?.attendances, e);
+              const newDate = e.target.value;
+              setCurrentDay(newDate);
+              filterAttendanceByDate(course?.attendances, newDate);
             }}
           >
             <option value="">Chọn ngày</option>
             <option value={formattedDate(new Date())}>Hôm nay</option>
             {scheduleList &&
-              scheduleList.map((item, index) => (
-                <option key={index} value={item.dateSche}>
-                  {moment(item.dateSche).format("DD/MM/yyyy")}
+              scheduleList.map((item) => (
+                <option key={item.dateSche} value={item.dateSche}>
+                  {moment(item.dateSche).format("DD/MM/YYYY")}
                 </option>
               ))}
           </select>
@@ -176,11 +212,7 @@ export default memo(function StudentDetailCoursePage() {
                         : "text-green-500"
                     }
                   >
-                    {attended === "Watching"
-                      ? "Theo dõi"
-                      : attended === "Absent"
-                      ? "Vắng mặt"
-                      : "Đã điểm danh"}
+                    {getAttendanceStatus(attended)}
                   </span>
                 </div>
               </div>
@@ -190,14 +222,21 @@ export default memo(function StudentDetailCoursePage() {
               </div>
             )}
             <div className="flex justify-between border border-uit bg-white rounded-lg shadow-lg p-4">
-              <span className="font-semibold mr-4">Trạng thái điểm danh:</span>
+              <span className="font-semibold mr-4">Thống kê:</span>
               <span className="font-semibold mr-4">
                 <span className="text-green-500">
                   {attendanceStats.attended}
                 </span>
                 {" / "}
-                <span className="text-red-500">{attendanceStats.total}</span>
+                <span className="text-gray-7700">{attendanceStats.total}</span>
               </span>
+              <div className="font-semibold">
+                Tiến độ:{" "}
+                {Math.round(
+                  (attendanceStats.attended / attendanceStats.total) * 100
+                )}
+                %
+              </div>
             </div>
           </div>
         </div>

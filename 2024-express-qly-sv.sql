@@ -114,10 +114,8 @@ CREATE TABLE `course`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `coursestudent`;
 CREATE TABLE `coursestudent`  (
-  -- `csId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `courseId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `MSSV` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  -- PRIMARY KEY (`csId`) USING BTREE
   PRIMARY KEY (`courseId`,`MSSV`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
@@ -147,7 +145,7 @@ CREATE TABLE `info`  (
   
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
-----------------------------
+-- --------------------------
 -- Table structure for room
 -- ----------------------------
 DROP TABLE IF EXISTS `room`;
@@ -173,12 +171,9 @@ CREATE TABLE `schedule`  (
 -- ----------------------------
 DROP TABLE IF EXISTS `attendance`;
 CREATE TABLE `attendance`  (
-  -- `attendId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `attended` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
-  -- `courseId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL,
   `MSSV` varchar(8) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `scheduleId` char(36) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  -- PRIMARY KEY (`attendId`) USING BTREE
   PRIMARY KEY (`MSSV`,`scheduleId`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci ROW_FORMAT = Dynamic;
 
@@ -186,34 +181,34 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- ADD CONSTRAINT:
 
---ADMIN:
+-- ADMIN:
  ALTER TABLE `admin` 
  ADD CONSTRAINT `fk_Admin` FOREIGN KEY (`authId`) REFERENCES `authentication` (`authId`) ON DELETE RESTRICT ON UPDATE RESTRICT;
---PARENT:
+-- PARENT:
  ALTER TABLE `parent` 
  ADD CONSTRAINT `fk_Parent` FOREIGN KEY (`authId`) REFERENCES `authentication` (`authId`) ON DELETE RESTRICT ON UPDATE RESTRICT;
---STUDENT:
+-- STUDENT:
 ALTER TABLE `student` 
 ADD CONSTRAINT `fk_Student1` FOREIGN KEY (`parentId`) REFERENCES `parent` (`parentId`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `student`
 ADD CONSTRAINT `fk_Student2` FOREIGN KEY (`authId`) REFERENCES `authentication` (`authId`) ON DELETE RESTRICT ON UPDATE RESTRICT;
---LECTURER:
+-- LECTURER:
 ALTER TABLE `lecturer` 
 ADD CONSTRAINT `fk_Lecturer` FOREIGN KEY (`authId`) REFERENCES `authentication` (`authId`) ON DELETE RESTRICT ON UPDATE RESTRICT;
---COURSE:
+-- COURSE:
 ALTER TABLE `course`
 ADD CONSTRAINT `fk_Course1` FOREIGN KEY (`lecturerId`) REFERENCES `lecturer` (`lecturerId`) ON DELETE SET NULL ON UPDATE CASCADE;
 ALTER TABLE `course`
 ADD CONSTRAINT `fk_Course2` FOREIGN KEY (`roomId`) REFERENCES `room` (`roomId`) ON DELETE SET NULL ON UPDATE CASCADE;
---COURSESTUDENT:
+-- COURSESTUDENT:
 ALTER TABLE `coursestudent`
 ADD CONSTRAINT `fk_coursestudent1` FOREIGN KEY (`courseId`) REFERENCES `course` (`courseId`) ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE `coursestudent`
 ADD CONSTRAINT `fk_coursestudent2` FOREIGN KEY (`MSSV`) REFERENCES `student` (`MSSV`) ON DELETE CASCADE ON UPDATE CASCADE;
---DEVICE:
+-- DEVICE:
 ALTER TABLE `device`
 ADD CONSTRAINT `fk_Device` FOREIGN KEY (`roomId`) REFERENCES `room` (`roomId`) ON DELETE SET NULL ON UPDATE CASCADE;
---INFO:
+-- INFO:
 ALTER TABLE `info`
 ADD CONSTRAINT `fk_Info` FOREIGN KEY (`courseId`) REFERENCES `course` (`courseId`) ON DELETE CASCADE ON UPDATE CASCADE;
 -- SCHEDULE:
