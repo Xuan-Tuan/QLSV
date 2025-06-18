@@ -69,22 +69,23 @@ export default memo(function LecturerCoursePage() {
   }, [currentUser, getListData]);
 
   return (
-    <div className="h-[calc(100vh-70px-50px)]">
-      <div className="text-base p-4 font-bold text-left pl-10 text-blue-700">
-        <div>
-          <p>Danh sách môn học đang giảng dạy: </p>
-        </div>
+    <div className=" w-full h-full flex flex-col  items-center gap-4 px-4 py-6  mx-auto">
+      {/* Tiêu đề */}
+      <div className="text-lg font-bold text-uit uppercase">
+        Danh sách môn học đang giảng dạy:
       </div>
-      <div className="h-[calc(100vh-70px-50px-80px)]  md:w-3/5  w-full lg:mr-20 lg:ml-20 shadow-lg flex flex-col gap-5 p-5 overflow-y-scroll will-change-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
+
+      {/* Danh sách môn học */}
+      <div className="flex flex-col gap-5 overflow-y-auto max-w-2xl w-full">
         {loading ? (
           <p className="text-center">Đang tải dữ liệu...</p>
         ) : courseLec.length > 0 ? (
           courseLec.map((course) => (
             <div
               key={course.id}
-              className="flex flex-row justify-between items-center px-8 py-4 my-5 bg-white rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-200"
+              className="flex flex-row justify-between items-center px-8 py-4 bg-white rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-200"
             >
-              <div className="flex flex-col text-start text-uit text-base font-bold">
+              <div className="flex flex-col text-start text-base font-bold text-uit">
                 <p className="mb-2">Môn học: {course.name}</p>
                 <p className="mb-2">Mã môn học: {course.code}</p>
                 <p className="mb-2">
@@ -92,24 +93,24 @@ export default memo(function LecturerCoursePage() {
                   {moment(course.startDay).format("DD/MM/YYYY")}
                 </p>
               </div>
-              <div className="flex flex-row justify-between">
+              <div className="flex flex-row gap-4">
                 <div
                   onClick={(e) => handleClickNotification(e, course.id)}
                   className="cursor-pointer transform transition-transform duration-300 hover:scale-110"
                 >
-                  <IoIosNotificationsOutline className="text-uit" size={50} />
+                  <IoIosNotificationsOutline className="text-uit" size={40} />
                 </div>
                 <div
                   onClick={(e) => handleClickCourse(e, course.id)}
                   className="cursor-pointer transform transition-transform duration-300 hover:scale-110"
                 >
-                  <IoArrowForwardCircleOutline className="text-uit" size={50} />
+                  <IoArrowForwardCircleOutline className="text-uit" size={40} />
                 </div>
               </div>
             </div>
           ))
         ) : (
-          <div className="flex justify-center item-center border border-uit text-uit font-semibold bg-white rounded-lg shadow-lg p-4">
+          <div className="flex justify-center items-center text-uit font-semibold bg-white rounded-lg shadow-lg p-4 border border-uit">
             Bạn chưa giảng dạy môn học nào
           </div>
         )}

@@ -124,13 +124,13 @@ export default memo(function StudentDetailCoursePage() {
   }, [courseCode, fetchCourseData]);
 
   return (
-    <div className="h-[calc(100vh-70px-50px)] flex flex-col lg:flex-row justify-evenly p-8 bg-gray-50">
+    <div className=" w-full h-full flex flex-col md:flex-row justify-evenly p-8 bg-gray-50">
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-xl text-uit font-semibold mr-4 text-center">
+        <h2 className="text-lg text-uit font-semibold mr-4 text-center">
           Môn học: {course.name}
         </h2>
-        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
-          <div className="flex flex-col space-y-4 text-blue-700 text-lg">
+        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6  border-2 ">
+          <div className="flex flex-col space-y-4 text-blue-700 text-base">
             <div className="flex justify-between">
               <span className="font-semibold mr-4 text-uit">Giáo viên:</span>
               <span>{course.lecturerName}</span>
@@ -167,10 +167,10 @@ export default memo(function StudentDetailCoursePage() {
       </div>
 
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-xl text-uit font-semibold mr-4 text-center">
+        <h2 className="text-lg text-uit font-semibold mr-4 text-center">
           Thông tin lịch học ngày: {currentDay}
         </h2>
-        <div className=" bg-white rounded-lg shadow-lg p-4 font-bold text-base text-uit">
+        <div className=" bg-white rounded-lg shadow-lg p-4 font-semibold text-base text-uit">
           <select
             value={currentDay}
             onChange={(e) => {
@@ -189,8 +189,8 @@ export default memo(function StudentDetailCoursePage() {
               ))}
           </select>
         </div>
-        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
-          <div className="flex flex-col space-y-4 text-uit text-lg">
+        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6 border-2 ">
+          <div className="flex flex-col space-y-4 text-uit text-base">
             {schedule && schedule.length !== 0 ? (
               <div key={course.courseId}>
                 <div className="flex justify-between">
@@ -217,8 +217,8 @@ export default memo(function StudentDetailCoursePage() {
                 </div>
               </div>
             ) : (
-              <div className=" flex justify-center items-center font-bold text-red-500 text-xl ">
-                Không có lịch học
+              <div className=" flex justify-center items-center font-normal text-red-500 text-base ">
+                Ngày được chọn hông có lịch học.
               </div>
             )}
             <div className="flex justify-between border border-uit bg-white rounded-lg shadow-lg p-4">
@@ -228,7 +228,7 @@ export default memo(function StudentDetailCoursePage() {
                   {attendanceStats.attended}
                 </span>
                 {" / "}
-                <span className="text-gray-7700">{attendanceStats.total}</span>
+                <span className="text-gray-700">{attendanceStats.total}</span>
               </span>
               <div className="font-semibold">
                 Tiến độ:{" "}

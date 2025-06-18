@@ -1,6 +1,5 @@
 import { useAuth } from "../controller/authController";
 import { PropTypes } from "prop-types";
-import { useEffect } from "react";
 import { Navigate } from "react-router-dom";
 
 ProtectedClientPage.propTypes = {
@@ -9,14 +8,14 @@ ProtectedClientPage.propTypes = {
 
 export default function ProtectedClientPage({ children }) {
   const { currentUser, role } = useAuth();
-  useEffect(() => {
-    if (!currentUser) {
-      return <Navigate to="/login" replace={true} />;
-    }
-    if (role !== "lecturer" && role !== "parent" && role !== "student") {
-      return <Navigate to="/error" replace={true} />;
-    }
-  }, []);
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (!["lecturer", "parent", "student"].includes(role)) {
+    return <Navigate to="/error" replace />;
+  }
 
   return children;
 }

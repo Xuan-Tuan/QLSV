@@ -4,49 +4,48 @@ import LecListStudentPage from "./lecturerListStudent";
 import LecturerDetailAttendanceDatePage from "./lecturerDetailAttendanceDate";
 import { formattedDate } from "../../controller/formattedDate";
 import { FiEdit } from "react-icons/fi";
+import { FaBookOpen, FaCalendarAlt, FaUsers } from "react-icons/fa";
 import PropTypes from "prop-types";
 import { API_SERVICE } from "../../helpers/apiHelper";
 import { filterAttendanceByDate } from "../../helpers/attendanceHelper";
 import LecturerContext from "../../component/lecturerContext";
 import moment from "moment";
 
-// Hiển thị thông tin chi tiếttiết môn học
+// Hiển thị thông tin chi tiết môn học
 const CourseInfo = memo(function CourseInfo({ course, handleAddLinkOnline }) {
   return (
-    <div className="flex items-center justify-between border border-uit bg-white rounded-lg shadow-lg px-8 py-6 lg:w-96 ">
+    <div className="flex items-center justify-between border border-uit bg-white rounded-lg shadow-lg px-8 py-6 ">
       <div className="flex flex-col space-y-4 text-uit text-lg  rounded-lg p-4">
         <div className="flex justify-between ">
           <span className="font-semibold mr-6">Mã môn học:</span>
-          <span className="text-blue-700">{course?.code}</span>
+          <span className="text-uit">{course?.code}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold mr-6">Ngày bắt đầu:</span>
-          <span className="text-blue-700">{course?.startDay}</span>
+          <span className="text-uit">{course?.startDay}</span>
         </div>
         <div className="flex flex-col justify-between items-center">
           <div className="flex justify-between text-gray-500">
             <span className="font-semibold mr-4">Từ:</span>
-            <span className="text-blue-700">{course?.startTime}</span>
+            <span className="text-uit">{course?.startTime}</span>
           </div>
           <div className="flex justify-between text-gray-500">
             <span className="font-semibold mr-4">Đến:</span>
-            <span className="text-blue-700">{course?.endTime}</span>
+            <span className="text-uit">{course?.endTime}</span>
           </div>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold mr-6">Tuần học:</span>
-          <span className="text-blue-700">{course?.week} Tuần</span>
+          <span className="text-uit">{course?.week} Tuần</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold mr-6">Phòng học:</span>
-          <span className="text-blue-700">{course?.nameRoom}</span>
+          <span className="text-uit">{course?.nameRoom}</span>
         </div>
 
         <div className="flex justify-between space-x-4">
           <span className="font-semibold">Online URL:</span>
-          <span className="text-blue-700">
-            {course?.onlineUrl || "Chưa có"}
-          </span>
+          <span className="text-uit">{course?.onlineUrl || "Chưa có"}</span>
           <FiEdit
             className="border-2 rounded-md text-uit cursor-pointer transform transition-transform duration-300 hover:scale-110"
             size={30}
@@ -113,39 +112,37 @@ const ScheduleInfo = memo(function ScheduleInfo({
     return <div className="text-uit">Đang tải dữ liệu điểm danh...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   return (
-    <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-      <div className="flex items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6 w-full">
-        <div className="flex flex-col space-y-4 text-uit">
-          <div className="flex flex-row justify-between items-center">
-            <select
-              value={scheduleDate.includes(currentDay) ? currentDay : ""}
-              onChange={(e) => setCurrentDay(e.target.value)}
-              className="text-center shadow-lg p-4"
-            >
-              <option value="">Chọn ngày</option>
-              <option value={moment().format("YYYY-MM-DD")}>Hôm nay</option>
-              {Array.isArray(scheduleDate) && scheduleDate.length === 0 ? (
-                <option disabled>Không có lịch dạy</option>
-              ) : (
-                scheduleDate.map((date) => (
-                  <option key={date} value={date}>
-                    {moment(date).format("DD/MM/YYYY")}
-                  </option>
-                ))
-              )}
-            </select>
+    <div className="flex flex-col items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6">
+      <div className="flex flex-col space-y-4 text-uit">
+        <div className="flex flex-row justify-between items-center">
+          <select
+            value={scheduleDate.includes(currentDay) ? currentDay : ""}
+            onChange={(e) => setCurrentDay(e.target.value)}
+            className="text-center shadow-lg p-4"
+          >
+            <option value="">Chọn ngày</option>
+            <option value={moment().format("YYYY-MM-DD")}>Hôm nay</option>
+            {Array.isArray(scheduleDate) && scheduleDate.length === 0 ? (
+              <option disabled>Không có lịch dạy</option>
+            ) : (
+              scheduleDate.map((date) => (
+                <option key={date} value={date}>
+                  {moment(date).format("DD/MM/YYYY")}
+                </option>
+              ))
+            )}
+          </select>
 
-            <div className="flex justify-between  shadow-lg p-4 font-semibold ">
-              <span>Trạng thái điểm danh:</span>
-              <span className="font-semibold">
-                <span className="text-green-500">{total.attended}</span>
-                <span>/</span>
-                <span className="text-red-500">{total.total}</span>
-              </span>
-            </div>
+          <div className="flex justify-between  shadow-lg p-4 font-semibold ">
+            <span>Trạng thái điểm danh:</span>
+            <span className="font-semibold">
+              <span className="text-green-500">{total.attended}</span>
+              <span>/</span>
+              <span className="text-red-500">{total.total}</span>
+            </span>
           </div>
-          <LecturerDetailAttendanceDatePage attendanceList={attendanceList} />
         </div>
+        <LecturerDetailAttendanceDatePage attendanceList={attendanceList} />
       </div>
     </div>
   );
@@ -170,7 +167,7 @@ const StudentList = memo(function StudentList({
         className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-auto text-uit"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="text-xl font-bold mb-4 text-center">
+        <div className="text-lg font-bold  text-center">
           {`Danh sách sinh viên học lớp ${courseCode}`}
         </div>
         {course ? (
@@ -291,30 +288,33 @@ export default memo(function LecturerDetailCoursePage() {
     <LecturerContext.Provider value={values}>
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
         <h1 className="text-2xl text-uit font-bold">Chi tiết môn học</h1>
-        <div className="flex">
+        <div className="flex gap-4 flex-wrap justify-center">
           <button
             onClick={() => setActiveTab(1)}
-            className={`mr-4 py-2 px-6 rounded ${
-              activeTab === 1 ? "bg-uit text-white" : "bg-gray-200"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 shadow-md
+      ${activeTab === 1 ? "bg-uit text-white" : "bg-gray-200 text-uit"}
+      hover:bg-uit hover:text-white`}
           >
-            Thông tin môn học
+            <FaBookOpen />
+            <span className="hidden sm:inline">Thông tin môn học</span>
           </button>
           <button
             onClick={() => setActiveTab(2)}
-            className={`mr-4 py-2 px-6 rounded ${
-              activeTab === 2 ? "bg-uit text-white" : "bg-gray-200"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 shadow-md
+      ${activeTab === 2 ? "bg-uit text-white" : "bg-gray-200 text-uit"}
+      hover:bg-uit hover:text-white`}
           >
-            Thông tin lịch dạy
+            <FaCalendarAlt />
+            <span className="hidden sm:inline">Thông tin lịch dạy</span>
           </button>
           <button
             onClick={() => setActiveTab(3)}
-            className={`py-2 px-6 rounded ${
-              activeTab === 3 ? "bg-uit text-white" : "bg-gray-200"
-            }`}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 shadow-md
+      ${activeTab === 3 ? "bg-uit text-white" : "bg-gray-200 text-uit"}
+      hover:bg-uit hover:text-white`}
           >
-            Danh sách sinh viên
+            <FaUsers />
+            <span className="hidden sm:inline">Danh sách sinh viên</span>
           </button>
         </div>
         {activeTab === 1 && (

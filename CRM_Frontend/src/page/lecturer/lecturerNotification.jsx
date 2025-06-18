@@ -11,8 +11,9 @@ export default memo(function LecturerNotification() {
   const [infoList, setInfoList] = useState([{}]);
   const [showModal, setShowModal] = useState(false);
   const { courseCode } = useParams();
+  const { currentUser } = useAuth();
 
-  const getListData = async () => {
+  const getListData = useCallback(async () => {
     const response = await API_SERVICE.get("infos", {});
     console.log("info------->", response);
     if (response?.status == "success") {
@@ -20,12 +21,11 @@ export default memo(function LecturerNotification() {
         ?.filter((item) => item?.course?.lecturerId == currentUser?.lecturerId)
         .map((item) => {
           item.id = item.infoId;
-
           return item;
         });
       setInfoList(data);
     }
-  };
+  }, [currentUser?.lecturerId]);
 
   const handleInfoSubmit = useCallback(
     async (e) => {
@@ -74,81 +74,82 @@ export default memo(function LecturerNotification() {
   useEffect(() => {
     getListData();
   }, [getListData]);
-  const { currentUser } = useAuth();
+
   return (
-    <div className="h-[calc(100vh-70px-50px)]">
-      <div className="text-base p-4 font-bold text-left pl-10 text-blue-700">
-        <div className="flex justify-between items-center">
-          <p>Danh sách thông báo của bạn</p>
-        </div>
-      </div>
-      <div className="h-[calc(100vh-70px-50px-80px)] md:w-3/5 w-full lg:mr-20 lg:ml-20 shadow-lg flex flex-col gap-5 p-5 overflow-y-scroll will-change-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
-        <div>
-          {infoList.length > 0 ? (
-            infoList.map((info, index) => (
-              <div
-                key={index}
-                className="flex flex-row justify-between items-center px-8 py-4 my-5 bg-white rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-200"
-              >
-                <div className="flex flex-col text-start text-uit text-lg font-bold">
-                  <p className="mb-4 text-center">{info.title}</p>
-                  <p className="mb-4">Môn học: {courseCode}</p>
-                  <p className="mb-2">Nội dung: {info.content}</p>
-                </div>
-                <div className="flex flex-row justify-between">
-                  <div
-                    className="border-2 rounded-md text-uit cursor-pointer transform transition-transform duration-300 hover:scale-110"
-                    onClick={(e) => handleDeleteInfo(e, info.id)}
-                  >
-                    <RiDeleteBin6Line className="text-uit" size={50} />
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="flex items-center justify-center shadow-lg p-4 rounded-md text-uit font-semibold text-xl">
-              Bạn hiện không có thông báo nào
-            </div>
-          )}
-        </div>
-        <div
-          onClick={(e) => handleClickAddNotice(e)}
-          className="cursor-pointer transform transition-transform duration-300 hover:scale-110 flex items-center justify-center"
-        >
-          <MdOutlineNotificationAdd className="text-uit" size={50} />
-        </div>
+    <div className="w-full h-full flex flex-col items-center px-4 py-6 overflow-y-auto">
+      <div className="text-lg font-bold text-center text-uit w-full max-w-4xl mb-4 uppercase">
+        Danh sách thông báo của bạn
       </div>
 
-      {/* Thêm thông báo */}
+      <div className="w-full max-w-2xl flex flex-col gap-4 overflow-y-auto">
+        {infoList.length > 0 ? (
+          infoList.map((info, index) => (
+            <div
+              key={index}
+              className="flex justify-between items-start bg-white p-6 rounded-lg shadow border border-gray-200"
+            >
+              <div className="text-uit text-base font-semibold space-y-2">
+                <p className="text-lg">{info.title}</p>
+                <p>Môn học: {courseCode}</p>
+                <p>Nội dung: {info.content}</p>
+              </div>
+              <div
+                onClick={(e) => handleDeleteInfo(e, info.id)}
+                className="text-uit cursor-pointer hover:text-red-600"
+              >
+                <RiDeleteBin6Line size={28} />
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="text-uit font-medium text-center mt-10">
+            Bạn hiện không có thông báo nào
+          </div>
+        )}
+      </div>
+
+      {/* Nút thêm thông báo */}
+      <div
+        onClick={(e) => handleClickAddNotice(e)}
+        className="mt-6 text-uit cursor-pointer hover:scale-110 transition-transform"
+      >
+        <MdOutlineNotificationAdd size={40} />
+      </div>
+
+      {/* Modal */}
       {showModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-96 text-uit">
-            <h2 className="text-xl font-bold mb-4">Thêm Thông Báo</h2>
-            <form onSubmit={(e) => handleInfoSubmit(e)}>
-              <label className="block mb-2 font-semibold">Tiêu đề</label>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 shadow-lg border border-gray-300">
+            <h2 className="text-xl font-bold mb-4 text-uit">Thêm Thông Báo</h2>
+            <form onSubmit={handleInfoSubmit}>
+              <label className="block mb-1 font-semibold">Tiêu đề</label>
               <input
                 type="text"
-                onChange={(e) => setInFo({ ...info, title: e.target.value })}
                 value={info.title}
-                className="border border-gray-300 p-2 w-full rounded mb-4 shadow-sm"
+                onChange={(e) =>
+                  setInFo((prev) => ({ ...prev, title: e.target.value }))
+                }
+                className="w-full border border-gray-300 p-2 rounded mb-3"
               />
-              <label className="block mb-2 font-semibold">Nội dung</label>
+              <label className="block mb-1 font-semibold">Nội dung</label>
               <textarea
-                onChange={(e) => setInFo({ ...info, content: e.target.value })}
                 value={info.content}
-                className="border border-gray-300 p-2 w-full rounded mb-4 shadow-sm"
+                onChange={(e) =>
+                  setInFo((prev) => ({ ...prev, content: e.target.value }))
+                }
+                className="w-full border border-gray-300 p-2 rounded mb-3"
               />
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-2">
                 <button
                   type="submit"
-                  className="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600"
+                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
                 >
-                  Thêm thông báo
+                  Thêm
                 </button>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className="ml-2 bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600"
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
                 >
                   Hủy
                 </button>

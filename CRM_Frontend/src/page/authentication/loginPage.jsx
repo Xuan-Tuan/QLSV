@@ -6,6 +6,7 @@ import {
 } from "../../controller/authController";
 import Logo from "../../assets/LOGO.png";
 import { AuthContext } from "../../component/authContext";
+import { toast } from "react-toastify";
 
 export default function LoginPage() {
   const navigate = useNavigate();
@@ -45,7 +46,7 @@ export default function LoginPage() {
         const { token, profile, role } = response.data;
         const allowedRoles = ["student", "admin", "lecturer", "parent"];
         if (!allowedRoles.includes(role)) {
-          alert(
+          toast.error(
             "Phân quyền tài khoản không hợp lệ. Vui lòng liên hệ quản trị viên."
           );
           return;
@@ -57,92 +58,106 @@ export default function LoginPage() {
         setRole(role);
         navigate(`/${role}`);
       } else {
-        alert(
+        toast.error(
           "Thông tin đăng nhập không đúng. Vui lòng nhập đúng thông tin tài khoản."
         );
       }
     } catch (error) {
       console.error(error);
-      alert("Có lỗi xảy ra. Vui lòng thử lại.");
+      toast.error("Có lỗi xảy ra. Vui lòng thử lại.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="container h-auto lg:w-2/6 lg:auto my-8 mx-auto px-12 py-12 flex flex-col justify-center border-4 rounded-3xl  bg-white shadow-md">
-        <div className=" flex justify-evenly item-center sm:mx-auto sm:w-full sm:max-w-sm">
-          <div>
-            <img className="mt-2 w-20" src={Logo} alt="LOGO" />
-          </div>
-          <h2 className=" mt-2 text-center text-lg lg:text-2xl font-bold leading-9 tracking-tight text-blue-900">
-            HỆ THỐNG <br />
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-100 via-indigo-200 to-purple-100 transition-all">
+      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10 animate-fade-in-up">
+        <div className="flex flex-col items-center">
+          <img className="w-24 mb-4" src={Logo} alt="LOGO" />
+          <h2 className="text-2xl font-bold text-indigo-800 text-center leading-snug">
+            HỆ THỐNG
+            <br />
             QUẢN LÝ SINH VIÊN
           </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form className="space-y-6" onSubmit={(e) => handleLogin(e)}>
-            <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Email
-              </label>
-              <div className="mt-2">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={userCredentials.email}
-                  onChange={handleChange}
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
+        <form onSubmit={handleLogin} className="mt-8 space-y-6">
+          <div>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Email
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={userCredentials.email}
+              onChange={handleChange}
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition"
+              placeholder="your@email.com"
+            />
+          </div>
 
-            <div>
-              <div className="flex items-center justify-between">
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium leading-6 text-gray-900"
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Mật khẩu
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={userCredentials.password}
+              onChange={handleChange}
+              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-400 focus:outline-none transition"
+              placeholder="Nhập mật khẩu"
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={loading}
+            className={`w-full flex justify-center items-center px-4 py-2 text-white font-semibold rounded-md transition-all duration-200 ${
+              loading
+                ? "bg-indigo-400 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-500"
+            }`}
+          >
+            {loading ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="w-5 h-5 animate-spin text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
                 >
-                  Mật khẩu
-                </label>
-              </div>
-              <div className="mt-2">
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  value={userCredentials.password}
-                  onChange={handleChange}
-                  required
-                  className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                />
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="submit"
-                disabled={loading}
-                className={`flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm ${
-                  loading
-                    ? "opacity-50 cursor-not-allowed"
-                    : "hover:bg-indigo-500"
-                }`}
-              >
-                {loading ? "Đang đăng nhập..." : "Đăng nhập"}
-              </button>
-            </div>
-          </form>
-        </div>
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  />
+                </svg>
+                Đang đăng nhập...
+              </span>
+            ) : (
+              "Đăng nhập"
+            )}
+          </button>
+        </form>
       </div>
     </div>
   );

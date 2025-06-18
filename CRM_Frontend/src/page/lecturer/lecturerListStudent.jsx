@@ -61,14 +61,14 @@ export default function LecListStudentPage() {
     }
   };
   return (
-    <div className="flex justify-center my-8">
+    <div className="flex justify-center my-2">
       {loading ? (
         <p>Đang tải dữ liệu...</p>
       ) : error ? (
         <p>{error}</p>
       ) : studentInfo && studentInfo.length !== 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full md:w-3/4 table-auto shadow-lg rounded-lg overflow-scroll">
+        <div className="">
+          <table className="w-full h-full table-auto shadow-lg rounded-lg">
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">STT</th>

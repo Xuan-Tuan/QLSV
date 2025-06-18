@@ -59,13 +59,13 @@ export default memo(function StudentCoursePage() {
   }, [currentUser, getListData]);
 
   return (
-    <div className="h-[calc(100vh-70px-50px)]">
-      <div className="text-base text-uit p-4 font-bold text-left pl-10 ">
+    <div className="w-full h-full flex flex-col items-center gap-4 px-4 py-6 mx-auto">
+      <div className="text-lg text-uit p-4 font-bold text-center uppercase ">
         <div>
           <p>Danh sách môn học của bạn</p>
         </div>
       </div>
-      <div className="h-[calc(100vh-70px-50px-80px)]  md:w-3/5  w-full lg:mr-20 lg:ml-20 shadow-lg flex flex-col gap-5 p-5 overflow-y-scroll will-change-scroll scrollbar-thin scrollbar-thumb-rounded scrollbar-thumb-gray-400 hover:scrollbar-thumb-gray-500">
+      <div className="flex flex-col gap-5 overflow-y-auto max-w-2xl w-full">
         {loading ? (
           <p className="text-center">Đang tải dữ liệu...</p>
         ) : courseListInfo.length === 0 ? (
@@ -78,7 +78,7 @@ export default memo(function StudentCoursePage() {
               key={course.courseId}
               className="flex flex-row justify-between items-center px-8 py-4 my-5 bg-white rounded-lg shadow-md hover:shadow-2xl transition-shadow duration-300 border border-gray-200"
             >
-              <div className="flex flex-col text-start text-uit text-base font-bold">
+              <div className="flex flex-col text-start text-uit text-base font-semibold">
                 <p className="mb-2">Môn học: {course.name}</p>
                 <p className="mb-2">Giảng viên: {course.lecturerName}</p>
                 <p className="mb-2">

@@ -2,7 +2,7 @@ import { useEffect, useState, useCallback, memo } from "react";
 import { useParams } from "react-router-dom";
 import DetailListStudentCourse from "./detailListStudentCourse";
 import { FiEdit } from "react-icons/fi";
-import { API_SERVICE } from "../../helpers/apiHelper";
+import { API_SERVICE } from "../../../helpers/apiHelper";
 import moment from "moment";
 
 export default memo(function DetailCoursePage() {
@@ -18,8 +18,9 @@ export default memo(function DetailCoursePage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [infoToDelete, setInfoToDelete] = useState(null);
 
-  const getDetailData = async (code) => {
+  const fetchDetailCourse = async (code) => {
     const response = await API_SERVICE.get("courses/" + code);
+    console.log("check res: ", response);
     if (response?.status == "success") {
       let data = {
         ...response?.data,
@@ -91,7 +92,7 @@ export default memo(function DetailCoursePage() {
         setShowDeleteModal(false);
         console.log("Delete info success");
       } else {
-        alert(res?.message);
+        alert(response?.message);
       }
     } catch (error) {
       console.log(error);
@@ -105,7 +106,7 @@ export default memo(function DetailCoursePage() {
 
   useEffect(() => {
     if (courseCode) {
-      getDetailData(courseCode);
+      fetchDetailCourse(courseCode);
       getListInfo(courseCode);
     }
   }, [courseCode]);
@@ -199,7 +200,7 @@ export default memo(function DetailCoursePage() {
               </div>
               <div className="flex justify-between">
                 <div className="font-semibold mr-6">Room:</div>{" "}
-                <div>{course.roomID}</div>
+                <div>{course.room.nameRoom}</div>
               </div>
               <div className="flex justify-between">
                 <div className="font-semibold mr-6">Start Day:</div>{" "}

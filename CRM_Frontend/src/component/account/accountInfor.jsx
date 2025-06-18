@@ -52,11 +52,11 @@ export default memo(function AccountInfor() {
   }, []);
 
   return (
-    <div className="h-[calc(100vh-70px-50px-64px-64px)] flex flex-col items-center justify-center py-12 px-4 sm:px-6 lg:px-8 space-y-6">
-      <div className="text-lg font-bold text-left align-middle pl-10 text-blue-700 uppercase">
+    <div className="flex flex-col gap-6 px-4  max-w-xl mx-auto items-center justify-center mt-10">
+      <div className="text-lg font-bold text-left align-middle pl-10 text-uit uppercase">
         {`Tài khoản ${getRoleDisplayName(userInfo.role)}`}
       </div>
-      <div className="flex flex-col space-y-4 span-4 bg-gray-100 rounded-xl py-8 px-6 shadow-lg">
+      <div className="flex flex-col space-y-4 span-4 bg-gray-100 rounded-xl py-8 px-6 shadow-lg w-full">
         <div className="text-lg font-bold bg-white rounded-lg px-6 py-2 text-uit text-center uppercase shadow-md">
           Thông tin tài khoản của bạn
         </div>
@@ -78,15 +78,12 @@ export default memo(function AccountInfor() {
             <span>{userInfo.address}</span>
           </div>
         </div>
-        <div className="flex items-center justify-evenly">
+        <div className="flex items-center justify-evenly pt-4">
           <button className="bg-blue-500 text-white px-4 py-2 rounded-2xl mr-2 transform transition-transform hover:scale-105">
             Chỉnh sửa
           </button>
           <button
-            to={"/login"}
-            onClick={(e) => {
-              handleLogOut(e);
-            }}
+            onClick={(e) => handleLogOut(e)}
             className="bg-red-500 text-white px-4 py-2 rounded-2xl transform transition-transform hover:scale-105"
           >
             Đăng xuất

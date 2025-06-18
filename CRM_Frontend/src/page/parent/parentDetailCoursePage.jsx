@@ -125,35 +125,37 @@ export default memo(function ParentDetailCoursePage() {
   }, [courseCode, fetchCourseData]);
 
   return (
-    <div className="h-[calc(100vh-70px-50px)] flex flex-col lg:flex-row justify-evenly p-8 bg-gray-50">
+    <div className="w-full h-full flex flex-col md:flex-row justify-evenly p-8 bg-gray-50">
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-2xl text-uit font-semibold text-center">
+        <h2 className="text-lg text-uit font-semibold text-center">
           Môn học: {course.name}
         </h2>
-        <div className="flex items-center justify-center bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
-          <div className="flex flex-col space-y-4 text-uit text-lg">
+        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6  border-2">
+          <div className="flex flex-col space-y-4 text-blue-700 text-base">
             <div className="flex justify-between">
-              <span className="font-semibold">Giáo viên:</span>
+              <span className="font-semibold mr-4 text-uit">Giáo viên:</span>
               <span>{course.lecturerName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold">Ngày bắt đầu:</span>
+              <span className="font-semibold mr-4 text-uit">Ngày bắt đầu:</span>
               <span>{course.startDay}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Từ:</span>
-              <span>{course.startTime}</span>
+            <div className="flex flex-col justify-between items-center">
+              <div className="flex justify-between">
+                <span className="font-semibold mr-4 text-uit">Từ:</span>
+                <span>{course.startTime}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold mr-4 text-uit">Đến:</span>
+                <span>{course.endTime}</span>
+              </div>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold">Đến:</span>
-              <span>{course.endTime}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="font-semibold">Tuần học:</span>
+              <span className="font-semibold mr-4 text-uit">Tuần học:</span>
               <span>{course.week} Tuần</span>
             </div>
             <div className="flex justify-between">
-              <span className="font-semibold">Phòng học:</span>
+              <span className="font-semibold mr-4 text-uit">Phòng học:</span>
               <span>{course.nameRoom}</span>
             </div>
           </div>
@@ -161,10 +163,10 @@ export default memo(function ParentDetailCoursePage() {
       </div>
 
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-xl text-uit font-semibold text-center">
+        <h2 className="text-lg text-uit font-semibold text-center">
           Thông tin lịch học ngày: {currentDay}
         </h2>
-        <div className="bg-white rounded-lg shadow-lg p-4 font-bold text-base text-uit">
+        <div className="bg-white rounded-lg shadow-lg p-4 font-semibold text-base text-uit">
           <select
             value={currentDay}
             onChange={(e) => {
@@ -182,7 +184,7 @@ export default memo(function ParentDetailCoursePage() {
             ))}
           </select>
         </div>
-        <div className="flex items-center justify-center bg-white rounded-lg shadow-lg px-8 py-6 w-full lg:w-96">
+        <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6 border-2">
           <div className="flex flex-col space-y-4 text-uit text-lg">
             {schedule && schedule.length !== 0 ? (
               <div>
@@ -208,11 +210,11 @@ export default memo(function ParentDetailCoursePage() {
                 </div>
               </div>
             ) : (
-              <div className="text-center text-red-500 text-xl font-bold">
-                Không có lịch học
+              <div className="text-center text-red-500 text-base">
+                Ngày được chọn Không có lịch học.
               </div>
             )}
-            <div className="flex justify-between border border-uit bg-white rounded-lg shadow-lg p-4">
+            <div className="flex justify-between border border-uit bg-white rounded-lg shadow-lg p-4 gap-4">
               <div>
                 <span className="font-semibold">Thống kê:</span>{" "}
                 <span className="font-semibold">

@@ -5,8 +5,8 @@ import ProtectedClientPage from "../component/protectedClientPage";
 
 import ManageDevicePage from "../page/admin/manageDevicePage";
 import ManageRoomPage from "../page/admin/manageRoomPage";
-import ManageCoursePage from "../page/admin/manageCoursePage";
-import DetailCoursePage from "../page/admin/detailCoursePage";
+import ManageCoursePage from "../page/admin/manageCourse/manageCoursePage";
+import DetailCoursePage from "../page/admin/manageCourse/detailCoursePage";
 
 import LecturerCoursePage from "../page/lecturer/lecturerCoursePage";
 import LecturerDetailCoursePage from "../page/lecturer/lecturerDetailCoursePage";
@@ -28,9 +28,9 @@ import {
   createRoutesFromElements,
 } from "react-router-dom";
 
-import ManageLecturerPage from "../page/admin/manageLecturerPage";
-import ManageParentPage from "../page/admin/manageParentPage";
-import ManageStudentPage from "../page/admin/manageStudentPage";
+import ManageLecturerPage from "../page/admin/manageLecturer/manageLecturerPage";
+import ManageParentPage from "../page/admin/manageParent/manageParentPage";
+import ManageStudentPage from "../page/admin/manageStudent/manageStudentPage";
 
 export const browserRouter = createBrowserRouter(
   createRoutesFromElements(
@@ -172,9 +172,9 @@ export const browserRouter = createBrowserRouter(
         path="/parent/account"
         element={
           <ProtectedClientPage>
-            <StudentPage>
+            <ParentPage>
               <AccountInfor />
-            </StudentPage>
+            </ParentPage>
           </ProtectedClientPage>
         }
       />
@@ -212,9 +212,9 @@ export const browserRouter = createBrowserRouter(
         path="/lecturer/account"
         element={
           <ProtectedClientPage>
-            <StudentPage>
+            <LecturerPage>
               <AccountInfor />
-            </StudentPage>
+            </LecturerPage>
           </ProtectedClientPage>
         }
       />

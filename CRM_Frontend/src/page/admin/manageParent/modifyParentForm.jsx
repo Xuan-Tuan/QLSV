@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, memo } from "react";
 import PropTypes from "prop-types";
-
+import { toast } from "react-toastify";
 import { API_SERVICE } from "../../../helpers/apiHelper";
 
 const ModifyParentForm = memo(function ModifyParentForm({
@@ -12,33 +12,30 @@ const ModifyParentForm = memo(function ModifyParentForm({
     address: "",
     phoneNumber: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch the current data of the parent when the component mounts
   const getDetail = async (id) => {
-    const response = await API_SERVICE.get("user/parent/" + id);
-    if (response?.status == "success") {
-      let newData = {
-        name: response?.data?.fullName,
-        address: response?.data?.address,
-        phoneNumber: response?.data?.phoneNumber,
-        authId: response?.data?.authId,
-        email: response?.data?.email,
-      };
-      setParentData(newData);
+    try {
+      const response = await API_SERVICE.get("user/parent/" + id);
+      if (response?.status === "success") {
+        setParentData({
+          name: response.data.fullName,
+          address: response.data.address,
+          phoneNumber: response.data.phoneNumber,
+          authId: response.data.authId,
+          email: response.data.email,
+        });
+      } else {
+        toast.error("Không thể lấy dữ liệu phụ huynh");
+      }
+    } catch (error) {
+      toast.error("Lỗi khi lấy dữ liệu phụ huynh");
     }
   };
 
-  // Fetch the current data of the lecturer when the component mounts
   useEffect(() => {
-    // Replace this with your actual data fetching logic
     if (parentId) {
       getDetail(parentId);
-    } else {
-      setParentData({
-        name: "",
-        address: "",
-        phoneNumber: "",
-      });
     }
   }, [parentId]);
 
@@ -49,49 +46,51 @@ const ModifyParentForm = memo(function ModifyParentForm({
     });
   };
 
+  const validateParentData = () => {
+    const { name, phoneNumber, address } = parentData;
+
+    if (!name || !address || !phoneNumber) {
+      toast.warn("Vui lòng điền đầy đủ thông tin");
+      return false;
+    }
+    if (name.length < 3 || name.length > 50) {
+      toast.warn("Tên phải từ 3 đến 50 ký tự");
+      return false;
+    }
+    if (!/^\d+$/.test(phoneNumber)) {
+      toast.warn("Số điện thoại phải là số");
+      return false;
+    }
+    if (phoneNumber.length < 10 || phoneNumber.length > 15) {
+      toast.warn("Số điện thoại phải từ 10 đến 15 số");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = useCallback(
     async (event) => {
       event.preventDefault();
-      if (!parentData.name || !parentData.address || !parentData.phoneNumber) {
-        alert("Please fill in all fields");
-        setParentData({ name: "", address: "", phoneNumber: "" });
-        return;
-      }
-      if (parentData.phoneNumber.length < 10) {
-        alert("Phone number must be at least 10 characters");
-        setParentData({ ...parentData, phoneNumber: "" });
-        return;
-      }
-      const isPhoneNumberValid = /^\d+$/.test(parentData.phoneNumber);
-      if (!isPhoneNumberValid) {
-        alert("Phone number must be numeric");
-        setParentData({ ...parentData, phoneNumber: "" });
-        return;
-      }
-      if (parentData.name.length < 3) {
-        alert("Name must be at least 3 characters");
-        setParentData({ ...parentData, name: "" });
-        return;
-      }
-      if (parentData.phoneNumber.length > 15) {
-        alert("Phone number must be at most 15 characters");
-        setParentData({ ...parentData, phoneNumber: "" });
-        return;
-      }
-      if (parentData.name.length > 50) {
-        alert("Name must be at most 50 characters");
-        setParentData({ ...parentData, name: "" });
-        return;
-      }
-      // Replace this with your actual update logic
-      const response = await API_SERVICE.put(
-        "user/parent/" + parentId,
-        parentData
-      );
-      if (response?.status == "success") {
-        closeForm();
-      } else {
-        alert(response?.message || "Cập nhật thất bại");
+
+      if (!validateParentData()) return;
+
+      setIsLoading(true);
+      try {
+        const response = await API_SERVICE.put(
+          "user/parent/" + parentId,
+          parentData
+        );
+        if (response?.status === "success") {
+          toast.success("Cập nhật thành công");
+          closeForm();
+        } else {
+          toast.error(response?.message || "Cập nhật thất bại");
+        }
+      } catch (error) {
+        toast.error("Lỗi khi cập nhật phụ huynh");
+      } finally {
+        setIsLoading(false);
       }
     },
     [parentData, parentId, closeForm]
@@ -112,6 +111,7 @@ const ModifyParentForm = memo(function ModifyParentForm({
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={parentData.name}
               onChange={handleInputChange}
+              disabled={isLoading}
             />
           </div>
           <div className="mb-4">
@@ -124,6 +124,7 @@ const ModifyParentForm = memo(function ModifyParentForm({
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={parentData.address}
               onChange={handleInputChange}
+              disabled={isLoading}
             />
           </div>
           <div className="mb-4">
@@ -136,19 +137,26 @@ const ModifyParentForm = memo(function ModifyParentForm({
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={parentData.phoneNumber}
               onChange={handleInputChange}
+              disabled={isLoading}
             />
           </div>
           <div className="flex items-center justify-between">
             <button
               type="submit"
-              className="bg-blue-500 text-white font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110"
+              disabled={isLoading}
+              className={`${
+                isLoading
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-blue-500 hover:scale-110"
+              } text-white font-semibold px-4 py-2 rounded transition-transform duration-300`}
             >
-              Cập nhật
+              {isLoading ? "Đang cập nhật..." : "Cập nhật"}
             </button>
             <button
               type="button"
               className="bg-gray-300 font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110"
               onClick={closeForm}
+              disabled={isLoading}
             >
               Hủy
             </button>

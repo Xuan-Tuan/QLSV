@@ -9,10 +9,10 @@ LecturerPage.propTypes = {
 export default function LecturerPage({ children }) {
   return (
     <>
-      <div className="flex flex-col m-0">
+      <div className="flex flex-col h-screen overflow-hidden">
         <HeaderUser />
 
-        <div>{children}</div>
+        <main className="flex-grow overflow-y-auto mt-16">{children}</main>
 
         <Footer />
       </div>

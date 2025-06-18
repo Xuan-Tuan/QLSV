@@ -76,22 +76,22 @@ export const API_SERVICE = {
         message: err?.response?.data?.message || "Lỗi form",
       }));
   },
-  paymentOrder: async (data) => {
-    let newData = {
-      order_id: data.id,
-      url_return: window.location.origin + "/payment/success",
-      amount: data.sub_total,
-      service_code: "hotel",
-      url_callback: window.location.origin + "/payment/failure",
-    };
-    return await axios
-      .post("https://123code.net/api/v1/payment/add", newData)
-      .then((res) => {
-        return res?.data;
-      })
-      .catch((err) => ({
-        status: "error",
-        message: err?.response?.data?.message || "Lỗi form",
-      }));
-  },
+  // paymentOrder: async (data) => {
+  //   let newData = {
+  //     order_id: data.id,
+  //     url_return: window.location.origin + "/payment/success",
+  //     amount: data.sub_total,
+  //     service_code: "hotel",
+  //     url_callback: window.location.origin + "/payment/failure",
+  //   };
+  //   return await axios
+  //     .post("https://123code.net/api/v1/payment/add", newData)
+  //     .then((res) => {
+  //       return res?.data;
+  //     })
+  //     .catch((err) => ({
+  //       status: "error",
+  //       message: err?.response?.data?.message || "Lỗi form",
+  //     }));
+  // },
 };

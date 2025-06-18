@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { useEffect, useState, memo, useCallback } from "react";
+import { useEffect, useState, memo } from "react";
 
 const DetailListStudentCourse = memo(function DetailListStudentCourse({
   studentList,
