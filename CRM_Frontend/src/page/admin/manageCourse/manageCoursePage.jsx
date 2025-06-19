@@ -105,7 +105,9 @@ export default memo(function ManageCoursePage() {
   return (
     <div className="container mx-auto">
       <div className="flex flex-row justify-between items-center mb-8">
-        <div className="text-lg font-bold mb-4 text-uit">Danh sách môn học</div>
+        <div className="text-lg font-bold mb-4 text-uit uppercase">
+          Danh sách môn học
+        </div>
         <button
           className="bg-blue-500 text-white font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110 hover:text-red-500 hover:bg-white hover:shadow-md"
           onClick={() => setIsAddFormOpen(true)}

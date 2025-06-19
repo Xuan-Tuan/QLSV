@@ -36,7 +36,7 @@ export default memo(function LecturerCoursePage() {
     [navigate]
   );
 
-  const getListData = useCallback(async () => {
+  const getListCourse = useCallback(async () => {
     setLoading(true);
     try {
       const response = await API_SERVICE.get("courses", {
@@ -64,19 +64,19 @@ export default memo(function LecturerCoursePage() {
 
   useEffect(() => {
     if (currentUser?.lecturerId) {
-      getListData();
+      getListCourse();
     }
-  }, [currentUser, getListData]);
+  }, [currentUser, getListCourse]);
 
   return (
-    <div className=" w-full h-full flex flex-col  items-center gap-4 px-4 py-6  mx-auto">
+    <div className=" w-full h-full mx-auto flex flex-col items-center gap-4 py-6">
       {/* Tiêu đề */}
       <div className="text-lg font-bold text-uit uppercase">
         Danh sách môn học đang giảng dạy:
       </div>
 
       {/* Danh sách môn học */}
-      <div className="flex flex-col gap-5 overflow-y-auto max-w-2xl w-full">
+      <div className="flex flex-col gap-5 overflow-y-auto scrollbar-thin scrollbar-thumb-uit scrollbar-track-gray-200 w-full max-w-2xl ">
         {loading ? (
           <p className="text-center">Đang tải dữ liệu...</p>
         ) : courseLec.length > 0 ? (

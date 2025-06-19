@@ -16,7 +16,6 @@ export default function AddLecturerModal({ onClose, onSuccess }) {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  // ✅ Hàm validate riêng
   const validateForm = () => {
     const { email, password } = authLec;
     const { name, address, phoneNumber } = lecInfo;
@@ -65,44 +64,49 @@ export default function AddLecturerModal({ onClose, onSuccess }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-2xl shadow-md lg:w-1/2 w-11/12 max-w-lg">
-        <h2 className="text-xl font-bold mb-6 text-center text-gray-800">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-xl p-6 space-y-6 border border-gray-200">
+        <div className="text-lg uppercase font-bold text-center text-uit">
           Thêm giảng viên
-        </h2>
+        </div>
         <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-4">
           {[
             {
               label: "Email",
               type: "email",
               value: authLec.email,
+              placeholder: "Nhập địa chỉ email giảng viên",
               onChange: (val) => setAuthLec({ ...authLec, email: val }),
             },
             {
               label: "Mật khẩu",
               type: "password",
               value: authLec.password,
+              placeholder: "Nhập mật khẩu (tối thiểu 6 ký tự)",
               onChange: (val) => setAuthLec({ ...authLec, password: val }),
             },
             {
               label: "Họ tên",
               type: "text",
               value: lecInfo.name,
+              placeholder: "Nhập họ tên giảng viên",
               onChange: (val) => setLecInfo({ ...lecInfo, name: val }),
             },
             {
               label: "Địa chỉ",
               type: "text",
               value: lecInfo.address,
+              placeholder: "Nhập địa chỉ hiện tại",
               onChange: (val) => setLecInfo({ ...lecInfo, address: val }),
             },
             {
               label: "Số điện thoại",
               type: "text",
               value: lecInfo.phoneNumber,
+              placeholder: "Nhập số điện thoại liên hệ",
               onChange: (val) => setLecInfo({ ...lecInfo, phoneNumber: val }),
             },
-          ].map(({ label, type, value, onChange }, idx) => (
+          ].map(({ label, type, value, placeholder, onChange }, idx) => (
             <div key={idx}>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 {label}
@@ -110,8 +114,9 @@ export default function AddLecturerModal({ onClose, onSuccess }) {
               <input
                 type={type}
                 value={value}
+                placeholder={placeholder}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-uit transition"
               />
             </div>
           ))}
@@ -120,22 +125,22 @@ export default function AddLecturerModal({ onClose, onSuccess }) {
             <p className="text-sm text-blue-600 text-right">Đang xử lý...</p>
           )}
 
-          <div className="flex justify-end gap-3 mt-4">
+          <div className="flex justify-end gap-3 mt-2">
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500"
+              className="px-4 py-2 bg-gray-400 text-white rounded-lg hover:bg-gray-500 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
               disabled={isLoading}
-              className={`${
+              className={`px-4 py-2 rounded-lg text-white transition ${
                 isLoading
                   ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
-              } text-white px-4 py-2 rounded-lg`}
+                  : "bg-uit hover:bg-blue-700"
+              }`}
             >
               {isLoading ? "Đang thêm..." : "Thêm giảng viên"}
             </button>

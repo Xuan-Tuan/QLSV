@@ -1,10 +1,10 @@
 import { useEffect, useState, memo, useCallback } from "react";
-import { formattedDate } from "../../controller/formattedDate";
-import axiosInstance from "../../controller/axiosInstance";
-import ModifyDeviceModal from "./modifyForm/modifyDeviceForm";
+import { formattedDate } from "../../../controller/formattedDate";
+import axiosInstance from "../../../controller/axiosInstance";
+import ModifyDeviceModal from "./modifyDeviceForm";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin4Line } from "react-icons/ri";
-import { API_SERVICE } from "../../helpers/apiHelper";
+import { API_SERVICE } from "../../../helpers/apiHelper";
 
 export default memo(function ManageDevicePage() {
   const [deviceInfo, setDeviceInfo] = useState({
@@ -196,7 +196,7 @@ export default memo(function ManageDevicePage() {
           alert("Device added successfully");
           setDeviceInfo({ ...deviceInfo, id: "", roomID: "" });
           closeAddForm();
-          getListData();
+          getListDevice();
         } else {
           alert("Failed to add device");
         }
@@ -216,7 +216,7 @@ export default memo(function ManageDevicePage() {
       if (response?.status == "success") {
         alert("Device deleted successfully");
         closeDeleteModal();
-        getListData();
+        getListDevice();
       } else {
         alert("Failed to delete device");
       }
@@ -227,11 +227,11 @@ export default memo(function ManageDevicePage() {
   }, []);
 
   useEffect(() => {
-    getListData();
+    getListDevice();
     getListRoom();
   }, []);
 
-  const getListData = async () => {
+  const getListDevice = async () => {
     const response = await API_SERVICE.get("devices");
     if (response?.status == "success") {
       let data = response?.data?.map((item) => {
@@ -243,6 +243,7 @@ export default memo(function ManageDevicePage() {
   };
   const getListRoom = async () => {
     const response = await API_SERVICE.get("rooms");
+    console.log("check res rooms: ", response);
     if (response?.status == "success") {
       setRoomList(response?.data);
       console.log("room list", roomList);
@@ -270,7 +271,8 @@ export default memo(function ManageDevicePage() {
                     {device.id}
                   </td>
                   <td className="border border-gray-400 px-4 py-2">
-                    {device.roomId}
+                    {roomList.find((room) => room.roomId === device.roomId)
+                      ?.nameRoom || "Unknown"}
                   </td>
                   <td className="border border-gray-400 px-4 py-2">
                     {device.status}
@@ -426,7 +428,7 @@ export default memo(function ManageDevicePage() {
             roomList={roomList}
             closeModal={() => {
               setIsModifyModalOpen(false);
-              getListData();
+              getListDevice();
             }}
           />
         </div>

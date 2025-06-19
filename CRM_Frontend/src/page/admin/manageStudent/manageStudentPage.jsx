@@ -107,7 +107,10 @@ export default memo(function ManageStudentPage() {
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h1 className="text-xl font-bold text-uit">Danh sách sinh viên</h1>
+        <div className="flex flex-col justify-between items-center text-uit font-semibold">
+          <div className=" p-4 text-lg uppercase">Quản lý sinh viên</div>
+          <div className="text-blue-700">{students.length} sinh viên</div>
+        </div>
         <button
           onClick={() => setIsAddStudentModalOpen(true)}
           className="bg-blue-500 text-white font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110 hover:text-red-500 hover:bg-white hover:shadow-md"

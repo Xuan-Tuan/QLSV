@@ -97,68 +97,67 @@ const ModifyParentForm = memo(function ModifyParentForm({
   );
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded shadow-md w-96">
-        <h2 className="text-xl font-bold mb-4">Chỉnh sửa phụ huynh</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Tên
-            </label>
-            <input
-              type="text"
-              name="name"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={parentData.name}
-              onChange={handleInputChange}
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+        <div className="text-lg uppercase font-bold text-center text-uit mb-6">
+          Chỉnh sửa phụ huynh
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {[
+            {
+              label: "Họ tên",
+              name: "name",
+              placeholder: "Nhập họ tên",
+              value: parentData.name,
+            },
+            {
+              label: "Địa chỉ",
+              name: "address",
+              placeholder: "Nhập địa chỉ",
+              value: parentData.address,
+            },
+            {
+              label: "Số điện thoại",
+              name: "phoneNumber",
+              placeholder: "Nhập số điện thoại",
+              value: parentData.phoneNumber,
+            },
+          ].map(({ label, name, placeholder, value }) => (
+            <div key={name}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {label}
+              </label>
+              <input
+                type="text"
+                name={name}
+                value={value}
+                placeholder={placeholder}
+                onChange={handleInputChange}
+                disabled={isLoading}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-uit transition"
+              />
+            </div>
+          ))}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={closeForm}
               disabled={isLoading}
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Địa chỉ
-            </label>
-            <input
-              type="text"
-              name="address"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={parentData.address}
-              onChange={handleInputChange}
-              disabled={isLoading}
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Số điện thoại
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              value={parentData.phoneNumber}
-              onChange={handleInputChange}
-              disabled={isLoading}
-            />
-          </div>
-          <div className="flex items-center justify-between">
+              className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+            >
+              Hủy
+            </button>
             <button
               type="submit"
               disabled={isLoading}
-              className={`${
+              className={`px-5 py-2 rounded-lg text-white font-semibold transition ${
                 isLoading
                   ? "bg-blue-300 cursor-not-allowed"
-                  : "bg-blue-500 hover:scale-110"
-              } text-white font-semibold px-4 py-2 rounded transition-transform duration-300`}
+                  : "bg-uit hover:bg-blue-700"
+              }`}
             >
-              {isLoading ? "Đang cập nhật..." : "Cập nhật"}
-            </button>
-            <button
-              type="button"
-              className="bg-gray-300 font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110"
-              onClick={closeForm}
-              disabled={isLoading}
-            >
-              Hủy
+              {isLoading ? "Đang cập nhật..." : "Xác nhận"}
             </button>
           </div>
         </form>

@@ -122,14 +122,17 @@ export default function AddCourseModal({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
-      <div className="bg-white w-full max-w-5xl rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
-        <div className=" text-blue-600 text-2xl font-bold px-6 py-4 flex items-center justify-center">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-full flex flex-col">
+        <div className="text-uit text-lg uppercase font-bold px-6 py-4 text-center border-b border-gray-200 bg-white shadow-sm">
           Thêm môn học mới
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+        >
           {/* Phần 1: Thông tin môn học */}
-          <section className="mb-6">
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">
               Thông tin môn học
             </h3>
@@ -142,7 +145,7 @@ export default function AddCourseModal({
                   type="text"
                   value={course.code}
                   onChange={handleChange("code")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-uit focus:border-uit"
                   placeholder="VD: IT1234"
                 />
               </div>
@@ -155,7 +158,7 @@ export default function AddCourseModal({
                   type="text"
                   value={course.name}
                   onChange={handleChange("name")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-blue-500"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-uit focus:border-uit"
                   placeholder="VD: Công nghệ phần mềm"
                 />
               </div>
@@ -167,7 +170,7 @@ export default function AddCourseModal({
                 <select
                   value={course.lecturerID}
                   onChange={handleChange("lecturerID")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 >
                   <option value="">-- Chọn giảng viên --</option>
                   {lecturerList.map((lecturer) => (
@@ -185,7 +188,7 @@ export default function AddCourseModal({
                 <select
                   value={course.roomID}
                   onChange={handleChange("roomID")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 >
                   <option value="">-- Chọn phòng --</option>
                   {roomList.map((room) => (
@@ -204,7 +207,7 @@ export default function AddCourseModal({
                   type="text"
                   value={course.onlineURL}
                   onChange={handleChange("onlineURL")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                   placeholder="https://..."
                 />
               </div>
@@ -212,11 +215,11 @@ export default function AddCourseModal({
           </section>
 
           {/* Phần 2: Lịch học */}
-          <section className="mb-6">
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">
               Lịch học
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Ngày bắt đầu <span className="text-red-500">*</span>
@@ -227,7 +230,7 @@ export default function AddCourseModal({
                   onChange={(e) =>
                     setCourse({ ...course, startDay: new Date(e.target.value) })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 />
               </div>
 
@@ -239,7 +242,7 @@ export default function AddCourseModal({
                   type="time"
                   value={course.startTime}
                   onChange={handleChange("startTime")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 />
               </div>
 
@@ -251,7 +254,7 @@ export default function AddCourseModal({
                   type="time"
                   value={course.endTime}
                   onChange={handleChange("endTime")}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 />
               </div>
 
@@ -267,14 +270,14 @@ export default function AddCourseModal({
                   onChange={(e) =>
                     setCourse({ ...course, week: Number(e.target.value) })
                   }
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
                 />
               </div>
             </div>
           </section>
 
           {/* Phần 3: Danh sách sinh viên */}
-          <section className="mb-6">
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
             <h3 className="text-lg font-semibold text-gray-700 mb-4">
               Danh sách sinh viên <span className="text-red-500">*</span>
             </h3>
@@ -287,7 +290,7 @@ export default function AddCourseModal({
                 );
                 setCourseStudentList(selected);
               }}
-              className="w-full h-48 border border-gray-300 rounded-lg px-3 py-2"
+              className="w-full h-48 border border-gray-300 rounded-lg px-3 py-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100"
             >
               {studentList.map((student) => (
                 <option key={student.id} value={student.id}>
@@ -308,7 +311,7 @@ export default function AddCourseModal({
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 font-semibold"
+              className="px-4 py-2 rounded-lg bg-uit text-white hover:bg-green-700 font-semibold"
             >
               Thêm môn học
             </button>

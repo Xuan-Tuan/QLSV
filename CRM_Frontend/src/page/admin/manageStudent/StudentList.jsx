@@ -41,59 +41,55 @@ const StudentListComponent = memo(function StudentListComponent({
   }, [students, parents]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-xl font-bold mb-4 text-center text-uit">
-        Danh sách sinh viên
-      </h1>
-      <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-        <thead>
-          <tr className="bg-gray-200 text-lg font-semibold">
-            <th className="py-2 px-3">STT</th>
-            <th className="py-2 px-3">Họ tên</th>
-            <th className="py-2 px-3">Phụ huynh</th>
-            <th className="py-2 px-3">Địa chỉ</th>
-            <th className="py-2 px-3">Số điện thoại</th>
-            <th className="py-2 px-3">RFID</th>
-            <th className="py-2 px-3">Thao tác</th>
+    <div className="w-full max-h-96 overflow-y-auto scrollbar-thin scrollbar-thumb-uit scrollbar-track-gray-200 rounded-lg shadow-lg p-4">
+      <table className="min-w-full table-auto bg-white rounded-lg overflow-hidden">
+        <thead className="bg-uitLight text-uit uppercase text-sm sticky top-0 z-10">
+          <tr>
+            <th className="py-3 px-4 text-left">STT</th>
+            <th className="py-3 px-4 text-left">Họ tên</th>
+            <th className="py-3 px-4 text-left">Phụ huynh</th>
+            <th className="py-3 px-4 text-left">Địa chỉ</th>
+            <th className="py-3 px-4 text-left">SĐT</th>
+            <th className="py-3 px-4 text-left">RFID</th>
+            <th className="py-3 px-4 text-center">Thao tác</th>
           </tr>
         </thead>
         <tbody>
           {studentList.length === 0 ? (
             <tr>
-              <td colSpan="7" className="text-center py-4 text-gray-500">
+              <td colSpan="7" className="text-center py-6 text-gray-500">
                 Không có sinh viên nào.
               </td>
             </tr>
           ) : (
             studentList.map((student, index) => (
-              <tr key={student.MSSV} className="hover:bg-gray-100 text-center">
-                <td className="py-2 px-3 border-b">{index + 1}</td>
-                <td className="py-2 px-3 border-b">{student?.fullName}</td>
-                <td className="py-2 px-3 border-b">
+              <tr
+                key={student.MSSV}
+                className="hover:bg-gray-100 transition-colors border-b text-sm"
+              >
+                <td className="py-2 px-4">{index + 1}</td>
+                <td className="py-2 px-4">{student?.fullName}</td>
+                <td className="py-2 px-4">
                   {student?.parent?.name || student?.parent?.fullName}
                 </td>
-                <td className="py-2 px-3 border-b">{student.address}</td>
-                <td className="py-2 px-3 border-b">{student.phoneNumber}</td>
-                <td className="py-2 px-3 border-b">{student.RFID}</td>
-                <td className="border px-4 py-2 flex justify-around items-center">
-                  <TbUserEdit
-                    title="Sửa thông tin sinh viênviên"
-                    onClick={(e) => handleModifyStudent(e, student.MSSV)}
-                    className="bg-yellow-500 text-white px-2 py-1 rounded  cursor-pointer transform transition-transform duration-300 hover:scale-110"
-                    size={40}
-                  >
-                    Sửa
-                  </TbUserEdit>
-                  <AiOutlineUserDelete
-                    title="Xóa sinh viên"
-                    onClick={(e) =>
-                      openDeleteConfirm(e, student.MSSV, student.parentId)
-                    }
-                    className="bg-red-500 text-white px-2 py-1 rounded  cursor-pointer transform transition-transform duration-300 hover:scale-110"
-                    size={40}
-                  >
-                    Xóa
-                  </AiOutlineUserDelete>
+                <td className="py-2 px-4">{student.address}</td>
+                <td className="py-2 px-4">{student.phoneNumber}</td>
+                <td className="py-2 px-4">{student.RFID}</td>
+                <td className="py-2 px-4">
+                  <div className="flex justify-center gap-4">
+                    <TbUserEdit
+                      title="Sửa thông tin"
+                      onClick={(e) => handleModifyStudent(e, student.MSSV)}
+                      className="bg-yellow-500 text-white p-2 rounded-lg cursor-pointer hover:scale-110 transition-transform"
+                      size={32}
+                    />
+                    <AiOutlineUserDelete
+                      title="Xoá sinh viên"
+                      onClick={(e) => openDeleteConfirm(e, student.MSSV)}
+                      className="bg-red-500 text-white p-2 rounded-lg cursor-pointer hover:scale-110 transition-transform"
+                      size={32}
+                    />
+                  </div>
                 </td>
               </tr>
             ))

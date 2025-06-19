@@ -67,8 +67,8 @@ export default function LecListStudentPage() {
       ) : error ? (
         <p>{error}</p>
       ) : studentInfo && studentInfo.length !== 0 ? (
-        <div className="">
-          <table className="w-full h-full table-auto shadow-lg rounded-lg">
+        <div className="max-h-72 overflow-y-scroll scrollbar-thin scrollbar-thumb-uit scrollbar-track-gray-200">
+          <table className=" table-auto shadow-lg rounded-lg">
             <thead className="bg-gray-200">
               <tr>
                 <th className="px-4 py-2">STT</th>

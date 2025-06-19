@@ -86,7 +86,7 @@ const DeviceController = {
 
       let result = null;
       let data = await DevicePersistence.findOne({ where: { deviceId: id } });
-      if (!data) throw new ApiError(404, `DDevice with ID ${id} not found`);
+      if (!data) throw new ApiError(404, `Device with ID ${id} not found`);
       result = await DevicePersistence.destroy({ where: { deviceId: id } });
 
       res.status(200).json({ status: "success", data: true });

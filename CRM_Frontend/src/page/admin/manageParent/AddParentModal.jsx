@@ -41,11 +41,11 @@ export default function AddParentModal({
   ];
 
   return (
-    <div className="fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
-      <div className="bg-white p-8 rounded-2xl shadow-md lg:w-1/2 w-11/12 max-w-lg">
-        <h2 className="text-xl font-bold mb-6 text-center text-gray-700">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg">
+        <div className="text-lg uppercase font-bold text-center text-uit mb-6">
           Thêm phụ huynh
-        </h2>
+        </div>
         <form onSubmit={onSubmit} className="grid grid-cols-1 gap-4">
           {fields.map(({ label, type, value, onChange }, idx) => (
             <div key={idx}>
@@ -55,8 +55,9 @@ export default function AddParentModal({
               <input
                 type={type}
                 value={value}
+                placeholder={`Nhập ${label.toLowerCase()}`}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-uit transition"
               />
             </div>
           ))}
@@ -65,13 +66,13 @@ export default function AddParentModal({
             <button
               type="button"
               onClick={onClose}
-              className="bg-gray-400 text-white font-semibold px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+              className="px-4 py-2 bg-gray-400 text-white font-semibold rounded-lg hover:bg-gray-500 transition"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+              className="px-4 py-2 bg-uit text-white font-semibold rounded-lg hover:bg-blue-700 transition"
             >
               Thêm phụ huynh
             </button>

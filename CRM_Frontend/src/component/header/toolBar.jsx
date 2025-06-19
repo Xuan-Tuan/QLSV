@@ -7,34 +7,37 @@ import PropTypes from "prop-types";
 const ToolBar = memo(function ToolBar({ toggleNavbar, isNavbarVisible }) {
   return (
     <header
-      className={`bg-uitLight text-uit shadow-md flex items-center justify-between p-2 fixed top-0 ${
-        isNavbarVisible ? "right-0 md:left-52 left-16" : "right-0 left-0"
-      } w-auto border-l-2 border-white`}
+      className={`bg-uitLight text-uit shadow-md flex items-center justify-between fixed top-0 z-50 h-20 px-4 transition-all duration-300 ${
+        isNavbarVisible ? "left-16 md:left-52 right-0" : "left-0 right-0"
+      } border-l-2 border-white`}
     >
+      {/* Nút Toggle */}
       <div className="cursor-pointer" onClick={toggleNavbar}>
-        <CgMenu size={40} />
+        <CgMenu size={30} />
       </div>
 
+      {/* Thanh Tìm kiếm */}
       <div className="flex-grow mx-4">
         <input
           type="text"
           placeholder="Tìm kiếm..."
-          className="w-full px-4 py-2 border border-gray-300 rounded-md"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition"
         />
       </div>
-      <div className="lg:flex lg:flex-col hidden text-base lg:text-xl text-center font-bold uppercase mr-2">
-        Hệ thống quản
-        <br />
-        lý Sinh viên
+
+      {/* Tên hệ thống */}
+      <div className="hidden lg:block text-right mr-6 leading-tight font-bold text-base uppercase">
+        <div>Hệ thống quản lý</div>
+        <div>Sinh viên</div>
       </div>
-      <div className="mr-4 flex items-center">
-        <NavLink to="/admin">
-          <div className="flex flex-row items-center justify-between">
-            <div className="flex font-bold text-base mr-5">ADMIN</div>
-            <RiAdminLine size={50} />
-          </div>
-        </NavLink>
-      </div>
+
+      {/* ADMIN avatar hoặc icon */}
+      <NavLink to="/admin">
+        <div className="flex items-center space-x-2">
+          <span className="font-bold text-base hidden md:block">ADMIN</span>
+          <RiAdminLine size={36} />
+        </div>
+      </NavLink>
     </header>
   );
 });

@@ -127,7 +127,7 @@ export default memo(function ParentDetailCoursePage() {
   return (
     <div className="w-full h-full flex flex-col md:flex-row justify-evenly p-8 bg-gray-50">
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-lg text-uit font-semibold text-center">
+        <h2 className="text-base text-uit font-semibold text-center">
           Môn học: {course.name}
         </h2>
         <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6  border-2">
@@ -163,7 +163,7 @@ export default memo(function ParentDetailCoursePage() {
       </div>
 
       <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h2 className="text-lg text-uit font-semibold text-center">
+        <h2 className="text-base text-uit font-semibold text-center">
           Thông tin lịch học ngày: {currentDay}
         </h2>
         <div className="bg-white rounded-lg shadow-lg p-4 font-semibold text-base text-uit">
@@ -185,7 +185,7 @@ export default memo(function ParentDetailCoursePage() {
           </select>
         </div>
         <div className="flex items-center justify-center  bg-white rounded-lg shadow-lg px-8 py-6 border-2">
-          <div className="flex flex-col space-y-4 text-uit text-lg">
+          <div className="flex flex-col space-y-4 text-uit text-base">
             {schedule && schedule.length !== 0 ? (
               <div>
                 <div className="flex justify-between">

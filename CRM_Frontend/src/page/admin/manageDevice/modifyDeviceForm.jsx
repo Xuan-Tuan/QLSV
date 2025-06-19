@@ -135,6 +135,7 @@ const ModifyDeviceModal = memo(function ModifyDeviceModal({
 ModifyDeviceModal.propTypes = {
   deviceId: PropTypes.string.isRequired,
   closeModal: PropTypes.func.isRequired,
+  roomList: PropTypes.array.isRequired,
 };
 
 export default ModifyDeviceModal;

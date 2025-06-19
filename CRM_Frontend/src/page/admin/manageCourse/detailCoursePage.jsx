@@ -15,7 +15,7 @@ export default memo(function DetailCoursePage() {
   const [showAddLinkModal, setShowAddLinkModal] = useState(false);
   const [visibleSection, setVisibleSection] = useState("info");
   const [showAddInfoModal, setShowAddInfoModal] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showDeleteInfoModal, setShowDeleteInfoModal] = useState(false);
   const [infoToDelete, setInfoToDelete] = useState(null);
 
   const fetchDetailCourse = async (code) => {
@@ -89,7 +89,7 @@ export default memo(function DetailCoursePage() {
       const response = await API_SERVICE.delete("infos/" + infoToDelete);
       if (response?.status == "success") {
         getListInfo(courseCode);
-        setShowDeleteModal(false);
+        setShowDeleteInfoModal(false);
         console.log("Delete info success");
       } else {
         alert(response?.message);
@@ -113,131 +113,136 @@ export default memo(function DetailCoursePage() {
 
   return (
     <div>
-      <div className="flex space-x-4 mb-6">
+      <div className="flex flex-wrap gap-4 mb-6">
         <button
           onClick={() => setVisibleSection("info")}
-          className={`px-4 py-2 rounded ${
-            visibleSection === "info" ? "bg-blue-500 text-white" : "bg-gray-200"
+          className={`px-5 py-2 rounded-full font-semibold shadow transition-all ${
+            visibleSection === "info"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          Thông báo
+          📢 Thông báo
         </button>
         <button
           onClick={() => setVisibleSection("course")}
-          className={`px-4 py-2 rounded ${
+          className={`px-5 py-2 rounded-full font-semibold shadow transition-all ${
             visibleSection === "course"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          Chi tiết môn học
+          📘 Chi tiết môn học
         </button>
         <button
           onClick={() => setVisibleSection("students")}
-          className={`px-4 py-2 rounded ${
+          className={`px-5 py-2 rounded-full font-semibold shadow transition-all ${
             visibleSection === "students"
-              ? "bg-blue-500 text-white"
-              : "bg-gray-200"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
           }`}
         >
-          Danh sách sinh viên
+          👥 Danh sách sinh viên
         </button>
       </div>
+
       {visibleSection === "info" && (
         <div>
           <div className="mb-6">
             <button
               onClick={() => setShowAddInfoModal(true)}
-              className="bg-blue-500 text-white font-bold px-4 py-2 rounded hover:bg-blue-600"
+              className="bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg shadow hover:bg-blue-700 transition"
             >
-              Thêm thông báo
+              ➕ Thêm thông báo
             </button>
           </div>
+
           <div className="grid grid-cols-1 gap-4">
             {infoList.map((info, index) => (
               <div
                 key={index}
-                className="p-4 bg-white shadow-md rounded-lg flex justify-between items-center"
+                className="p-5 bg-white rounded-xl shadow-lg border-l-4 border-blue-500 flex justify-between items-start"
               >
                 <div>
-                  <div className="text-xl font-semibold mb-2 text-uit">
-                    {info.title}
-                  </div>
-                  <div>{info.content}</div>
+                  <h3 className="text-lg font-semibold text-blue-700 mb-2">
+                    📌 {info.title}
+                  </h3>
+                  <p className="text-gray-700">{info.content}</p>
                 </div>
                 <button
                   onClick={() => {
-                    setShowDeleteModal(true);
+                    setShowDeleteInfoModal(true);
                     setInfoToDelete(info.id);
                   }}
-                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                  className="ml-4 px-3 py-1.5 bg-red-500 text-white rounded-md hover:bg-red-600 transition"
                 >
-                  Delete
+                  Xóa
                 </button>
               </div>
             ))}
           </div>
         </div>
       )}
+
       {visibleSection === "course" && (
-        <div className="flex flex-col items-start justify-between bg-white rounded-lg shadow-lg px-8 py-6 lg:w-96 p-8 space-y-4 ">
-          <h2 className="text-xl font-bold mb-4 text-center">
-            Thông tin chi tiết môn học
+        <div className="bg-white rounded-xl shadow-xl p-6 md:p-8 max-w-xl mx-auto space-y-4">
+          <h2 className="text-2xl font-bold text-blue-600 text-center mb-6">
+            📚 Thông tin chi tiết môn học
           </h2>
-          <div className="flex flex-row items-center justify-between">
-            <div className="font-semibold mr-6">Mã môn học:</div>{" "}
-            <div>{courseCode}</div>
-          </div>
-          {Object.keys(course).length > 0 && (
-            <>
-              <div className="flex justify-between">
-                <div className="font-semibold mr-6">Name:</div>{" "}
-                <div>{course.name}</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="font-semibold mr-6">Lecturer:</div>{" "}
-                <div>{course.lecturerName}</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="font-semibold mr-6">Room:</div>{" "}
-                <div>{course.room.nameRoom}</div>
-              </div>
-              <div className="flex justify-between">
-                <div className="font-semibold mr-6">Start Day:</div>{" "}
-                <div>{moment(course.startDay).format("DD/MM/yyyy")}</div>
-              </div>
-              <div className="flex flex-col justify-between items-center">
-                <div className="flex justify-between  text-gray-500">
-                  <div className="font-semibold mr-4 ml-4">Từ:</div>
-                  <div>{course.startTime}</div>
-                </div>
-                <div className="flex justify-between text-gray-500">
-                  <div className="font-semibold mr-4 ml-4">Đến:</div>
-                  <div>{course.endTime}</div>
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <div className="font-semibold mr-6">Week:</div>{" "}
-                <div>{course.week}</div>
-              </div>
-              <div className="flex justify-between space-x-4">
-                <div className="font-semibold mr-6">Online Link:</div>
-                <div
+
+          <div className="grid grid-cols-1 gap-3">
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Mã môn học:</span>
+              <span>{courseCode}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Tên môn học:</span>
+              <span>{course.name}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Giảng viên:</span>
+              <span>{course.lecturerName}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Phòng học:</span>
+              <span>{course.room?.nameRoom}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Ngày bắt đầu:</span>
+              <span>{moment(course.startDay).format("DD/MM/YYYY")}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Thời gian:</span>
+              <span>
+                {course.startTime} - {course.endTime}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="font-semibold text-gray-700">Số tuần học:</span>
+              <span>{course.week}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="font-semibold text-gray-700">
+                Link học online:
+              </span>
+              <div className="flex items-center gap-2">
+                <a
                   href={course.onlineURL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-500 underline ml-2"
+                  className="text-blue-500 underline break-all"
                 >
-                  {course.onlineURL}
-                </div>
+                  {course.onlineURL || "Chưa có"}
+                </a>
                 <FiEdit
-                  className="border-2 rounded-md text-uit cursor-pointer transform transition-transform duration-300 hover:scale-110"
-                  size={30}
+                  size={20}
                   onClick={(e) => handleAddLinkOnline(e)}
+                  className="text-gray-600 hover:text-blue-600 cursor-pointer"
+                  title="Sửa link"
                 />
               </div>
-            </>
-          )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -252,36 +257,39 @@ export default memo(function DetailCoursePage() {
         ))}
 
       {showAddLinkModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-auto text-uit">
-            <div className="text-xl font-bold mb-4">Thêm link học Online</div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-full max-w-md p-6 rounded-2xl shadow-2xl border border-gray-300 text-uit">
+            <h2 className="text-xl font-bold mb-4 text-center text-blue-600">
+              Thêm link học Online
+            </h2>
             <form onSubmit={handleOnlineLinkSubmit}>
               <div className="mb-4">
                 <label
                   htmlFor="onlineLink"
-                  className="block font-semibold mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Link học Online:
+                  Link học Online
                 </label>
                 <input
                   id="onlineLink"
                   type="text"
                   value={onlineURL}
                   onChange={(e) => setOnlineURL(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg"
+                  placeholder="https://..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-              <div className="flex justify-end">
+              <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setShowAddLinkModal(false)}
-                  className="mr-4 py-2 px-4 bg-red-500 text-white rounded-lg"
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-4 bg-uit text-white rounded-lg"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   Thêm
                 </button>
@@ -290,56 +298,69 @@ export default memo(function DetailCoursePage() {
           </div>
         </div>
       )}
+
       {showAddInfoModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-auto text-uit">
-            <div className="text-xl font-bold mb-4">Thêm thông báo</div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-full max-w-lg p-6 rounded-2xl shadow-2xl border border-gray-300 text-uit">
+            <h2 className="text-xl font-bold mb-4 text-center text-blue-600">
+              Thêm thông báo mới
+            </h2>
             <form onSubmit={handleInfoSubmit}>
               <div className="mb-4">
-                <label htmlFor="infoTitle" className="block font-semibold mb-2">
-                  Tiêu đề
+                <label
+                  htmlFor="infoTitle"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
+                  Tiêu đề <span className="text-red-500">*</span>
                 </label>
                 <input
                   id="infoTitle"
                   type="text"
+                  value={info.title}
                   onChange={(e) =>
-                    setInFo({
-                      ...info,
+                    setInFo((prev) => ({
+                      ...prev,
                       title: e.target.value,
-                    })
+                    }))
                   }
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập tiêu đề"
                 />
               </div>
+
               <div className="mb-4">
                 <label
                   htmlFor="infoContent"
-                  className="block font-semibold mb-2"
+                  className="block text-sm font-medium text-gray-700 mb-1"
                 >
-                  Nội dung
+                  Nội dung <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   id="infoContent"
+                  rows={4}
+                  value={info.content}
                   onChange={(e) =>
-                    setInFo({
-                      ...info,
+                    setInFo((prev) => ({
+                      ...prev,
                       content: e.target.value,
-                    })
+                    }))
                   }
-                  className="w-full px-3 py-2 border rounded-lg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Nhập nội dung thông báo"
                 />
               </div>
-              <div className="flex justify-end">
+
+              <div className="flex justify-end gap-4">
                 <button
                   type="button"
                   onClick={() => setShowAddInfoModal(false)}
-                  className="mr-4 py-2 px-4 bg-red-500 text-white rounded-lg"
+                  className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
                 >
                   Hủy
                 </button>
                 <button
                   type="submit"
-                  className="py-2 px-4 bg-uit text-white rounded-lg"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                 >
                   Thêm thông báo
                 </button>
@@ -349,22 +370,26 @@ export default memo(function DetailCoursePage() {
         </div>
       )}
 
-      {showDeleteModal && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-auto text-uit">
-            <div className="text-xl font-bold mb-4">Xác nhận xóa</div>
-            <p className="mb-4">Bạn có chắc chắn muốn xóa thông báo này?</p>
-            <div className="flex justify-end">
+      {showDeleteInfoModal && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white w-full max-w-sm p-6 rounded-2xl shadow-2xl border border-gray-300 text-uit">
+            <h2 className="text-xl font-bold mb-4 text-center text-red-600">
+              Xác nhận xóa
+            </h2>
+            <p className="text-center text-gray-700 mb-6">
+              Bạn có chắc chắn muốn xóa thông báo này không?
+            </p>
+            <div className="flex justify-end gap-4">
               <button
                 type="button"
-                onClick={() => setShowDeleteModal(false)}
-                className="mr-4 py-2 px-4 bg-gray-300 rounded-lg"
+                onClick={() => setShowDeleteInfoModal(false)}
+                className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
               >
                 Hủy
               </button>
               <button
                 onClick={handleDeleteInfo}
-                className="py-2 px-4 bg-red-500 text-white rounded-lg"
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition"
               >
                 Xóa
               </button>

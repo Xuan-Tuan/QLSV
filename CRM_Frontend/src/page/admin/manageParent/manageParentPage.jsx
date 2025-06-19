@@ -180,9 +180,9 @@ export default memo(function ManageParentPage() {
   return (
     <div className="container mx-auto ">
       <div className="flex flex-row justify-between items-center mb-8">
-        <div className="flex flex-col justify-between items-center text-uit">
-          <div className="font-semibold p-4 text-2xl">Quản lý phụ huynh</div>
-          <div>{parents.length} phụ huynh</div>
+        <div className="flex flex-col justify-between items-center text-uit font-semibold">
+          <div className="p-4 text-lg uppercase">Quản lý phụ huynh</div>
+          <div className="text-blue-700">{parents.length} phụ huynh</div>
         </div>
         <button
           disabled={isLoadingAdd}

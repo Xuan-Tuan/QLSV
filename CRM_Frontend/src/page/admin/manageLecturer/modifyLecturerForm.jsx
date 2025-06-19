@@ -93,67 +93,66 @@ const ModifyLecturerForm = memo(function ModifyLecturerForm({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-700 bg-opacity-50 z-50">
-      <div className="bg-white p-6 rounded shadow-lg w-full max-w-lg">
-        <h2 className="text-2xl font-bold mb-4">Chỉnh sửa giảng viên</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Name:
-            </label>
-            <input
-              type="text"
-              name="name"
-              value={lecturerData.name}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Address:
-            </label>
-            <input
-              type="text"
-              name="address"
-              value={lecturerData.address}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2">
-              Phone Number:
-            </label>
-            <input
-              type="text"
-              name="phoneNumber"
-              value={lecturerData.phoneNumber}
-              onChange={handleInputChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            />
-          </div>
-          <div className="flex items-center justify-end">
-            <div className="flex items-center justify-end gap-3">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className={`${
-                  isLoading
-                    ? "bg-blue-300 cursor-not-allowed"
-                    : "bg-blue-500 hover:bg-blue-700"
-                } text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`}
-              >
-                {isLoading ? "Đang cập nhật..." : "Submit"}
-              </button>
-              <button
-                type="button"
-                onClick={closeForm}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-              >
-                Cancel
-              </button>
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 z-50 px-4">
+      <div className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg">
+        <div className="text-lg uppercase font-bold text-center text-uit mb-6">
+          Chỉnh sửa giảng viên
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {[
+            {
+              label: "Họ tên",
+              name: "name",
+              placeholder: "Nhập họ và tên",
+              value: lecturerData.name,
+            },
+            {
+              label: "Địa chỉ",
+              name: "address",
+              placeholder: "Nhập địa chỉ",
+              value: lecturerData.address,
+            },
+            {
+              label: "Số điện thoại",
+              name: "phoneNumber",
+              placeholder: "Nhập số điện thoại",
+              value: lecturerData.phoneNumber,
+            },
+          ].map(({ label, name, placeholder, value }) => (
+            <div key={name}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {label}
+              </label>
+              <input
+                type="text"
+                name={name}
+                value={value}
+                placeholder={placeholder}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-uit transition"
+              />
             </div>
+          ))}
+
+          <div className="flex justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={closeForm}
+              className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`px-5 py-2 rounded-lg text-white font-semibold transition ${
+                isLoading
+                  ? "bg-blue-300 cursor-not-allowed"
+                  : "bg-uit hover:bg-blue-700"
+              }`}
+            >
+              {isLoading ? "Đang cập nhật..." : "Xác nhận"}
+            </button>
           </div>
         </form>
       </div>

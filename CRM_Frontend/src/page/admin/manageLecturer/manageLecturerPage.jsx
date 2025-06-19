@@ -51,9 +51,9 @@ export default memo(function ManageLecturerPage() {
   return (
     <div className="container mx-auto">
       <div className="flex flex-row justify-between items-center mb-8">
-        <div className="flex flex-col justify-between items-center text-uit">
-          <div className="font-semibold p-4 text-2xl">Quản lý giảng viên</div>
-          <div>{lecturers.length} giảng viên</div>
+        <div className="flex flex-col justify-between items-center text-uit font-semibold">
+          <div className=" p-4 text-lg uppercase">Quản lý giảng viên</div>
+          <div className="text-blue-700">{lecturers.length} giảng viên</div>
         </div>
         <button
           className="bg-blue-500 text-white font-semibold px-4 py-2 rounded cursor-pointer transform transition-transform duration-300 hover:scale-110 hover:text-red-500 hover:bg-white hover:shadow-md"

@@ -21,7 +21,7 @@ export default memo(function HeaderUser() {
   );
 
   return (
-    <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-indigo-800 via-indigo-700 to-indigo-900 shadow-md h-20 text-white flex items-center justify-between px-4 z-50">
+    <header className="fixed top-0 left-0 right-0 bg-gradient-to-r from-indigo-800 via-indigo-700 to-indigo-900 shadow-md text-white flex items-center justify-between h-20 px-4 z-50">
       {/* Logo & Title */}
       <div className="flex items-center space-x-4">
         <NavLink to={`/${role}`}>

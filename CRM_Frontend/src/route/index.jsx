@@ -3,7 +3,7 @@ import ErrorPage from "../component/errorPage";
 import ProtectedAdminPage from "../component/protectedAdminPage";
 import ProtectedClientPage from "../component/protectedClientPage";
 
-import ManageDevicePage from "../page/admin/manageDevicePage";
+import ManageDevicePage from "../page/admin/manageDevice/manageDevicePage";
 import ManageRoomPage from "../page/admin/manageRoomPage";
 import ManageCoursePage from "../page/admin/manageCourse/manageCoursePage";
 import DetailCoursePage from "../page/admin/manageCourse/detailCoursePage";

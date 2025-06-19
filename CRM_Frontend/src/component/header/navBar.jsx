@@ -59,40 +59,41 @@ export default memo(function Navbar() {
   );
 
   return (
-    <div className="navbar_container fixed top-0 h-full font-poppins text-white bg-uit border-r-2 w-16 md:w-52 flex flex-col justify-between">
-      <div className="navbar_title flex justify-center items-center w-full h-auto font-bold text-lg">
-        <div className="w-10 md:w-16 py-4 h-16 md:h-20">
-          <NavLink to="/admin">
-            <img src={Logo} alt="LOGO" />
-          </NavLink>
-        </div>
+    <div className="fixed top-0 left-0 h-full font-poppins text-white bg-uit border-r w-16 md:w-52 flex flex-col justify-between transition-all duration-300 shadow-lg z-40">
+      {/* Logo trên cùng */}
+      <div className="flex justify-center items-center py-4">
+        <NavLink to="/admin">
+          <img
+            src={Logo}
+            alt="LOGO"
+            className="w-10 md:w-16 h-auto object-contain"
+          />
+        </NavLink>
       </div>
-      <div className="flex-grow">
+
+      {/* Danh sách menu */}
+      <div className="flex-grow flex flex-col items-center md:items-stretch space-y-2 px-2">
         {listNavbarItem.map((item) => (
           <NavLink
             to={item.link}
             key={item.id}
             onClick={() => handleItemClick(item.id)}
-            className={`navbar_item flex items-center h-16 text-sm font-bold ${
+            className={`flex items-center space-x-4 w-full px-3 py-3 rounded-lg font-semibold text-sm transition-all duration-200 ${
               activeItem === item.id
-                ? "active bg-white text-red-500 border-2 rounded-md border-uit"
-                : "hover:bg-white hover:text-red-500 border-8 rounded-md border-uit"
+                ? "bg-white text-red-500 border-l-4 border-uit"
+                : "hover:bg-white hover:text-red-500"
             }`}
           >
-            <div className="flex items-center space-x-4 w-full px-2 ">
-              <div>{item.icon}</div>
-              <div className="hidden md:block">{item.title}</div>
-            </div>
+            <div>{item.icon}</div>
+            <span className="hidden md:inline">{item.title}</span>
           </NavLink>
         ))}
       </div>
-      <div className="flex items-center justify-center p-8">
+
+      {/* Logo FCE dưới cùng */}
+      <div className="flex justify-center items-center py-4">
         <NavLink to="/admin">
-          <img
-            src={FCE}
-            alt="FCE"
-            className=" w-16 h-10 lg:w-auto lg:h-auto object-contain"
-          />
+          <img src={FCE} alt="FCE" className="w-16 h-10  object-contain" />
         </NavLink>
       </div>
     </div>

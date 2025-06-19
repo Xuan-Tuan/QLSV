@@ -5,8 +5,8 @@ import PropTypes from "prop-types";
 export default function LecturerDetailAttendanceDatePage(props) {
   const { currentDay } = useContext(LecturerContext);
   return (
-    <div className="container">
-      <table className="overflow-scroll bg-white border border-gray-200 w-full h-full">
+    <div className="container max-h-72 overflow-y-scroll scrollbar-thin scrollbar-thumb-uit scrollbar-track-gray-200">
+      <table className="min-w-full table-auto bg-white border border-gray-200">
         <thead>
           <tr>
             <th className="py-2 px-4 border-b">Số thứ tự</th>

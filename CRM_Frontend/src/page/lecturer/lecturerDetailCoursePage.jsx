@@ -112,38 +112,36 @@ const ScheduleInfo = memo(function ScheduleInfo({
     return <div className="text-uit">Đang tải dữ liệu điểm danh...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
   return (
-    <div className="flex flex-col items-center justify-center border border-uit bg-white rounded-lg shadow-lg px-8 py-6">
-      <div className="flex flex-col space-y-4 text-uit">
-        <div className="flex flex-row justify-between items-center">
-          <select
-            value={scheduleDate.includes(currentDay) ? currentDay : ""}
-            onChange={(e) => setCurrentDay(e.target.value)}
-            className="text-center shadow-lg p-4"
-          >
-            <option value="">Chọn ngày</option>
-            <option value={moment().format("YYYY-MM-DD")}>Hôm nay</option>
-            {Array.isArray(scheduleDate) && scheduleDate.length === 0 ? (
-              <option disabled>Không có lịch dạy</option>
-            ) : (
-              scheduleDate.map((date) => (
-                <option key={date} value={date}>
-                  {moment(date).format("DD/MM/YYYY")}
-                </option>
-              ))
-            )}
-          </select>
+    <div className=" w-full h-full flex flex-col items-center justify-center border border-uit bg-white rounded-lg shadow-lg mx-auto gap-4 p-6 text-uit">
+      <div className="flex flex-row justify-between items-center">
+        <select
+          value={scheduleDate.includes(currentDay) ? currentDay : ""}
+          onChange={(e) => setCurrentDay(e.target.value)}
+          className="text-center shadow-lg p-4"
+        >
+          <option value="">Chọn ngày</option>
+          <option value={moment().format("YYYY-MM-DD")}>Hôm nay</option>
+          {Array.isArray(scheduleDate) && scheduleDate.length === 0 ? (
+            <option disabled>Không có lịch dạy</option>
+          ) : (
+            scheduleDate.map((date) => (
+              <option key={date} value={date}>
+                {moment(date).format("DD/MM/YYYY")}
+              </option>
+            ))
+          )}
+        </select>
 
-          <div className="flex justify-between  shadow-lg p-4 font-semibold ">
-            <span>Trạng thái điểm danh:</span>
-            <span className="font-semibold">
-              <span className="text-green-500">{total.attended}</span>
-              <span>/</span>
-              <span className="text-red-500">{total.total}</span>
-            </span>
-          </div>
+        <div className="flex justify-between  shadow-lg p-4 font-semibold ">
+          <span>Trạng thái điểm danh:</span>
+          <span className="font-semibold">
+            <span className="text-green-500">{total.attended}</span>
+            <span>/</span>
+            <span className="text-red-500">{total.total}</span>
+          </span>
         </div>
-        <LecturerDetailAttendanceDatePage attendanceList={attendanceList} />
       </div>
+      <LecturerDetailAttendanceDatePage attendanceList={attendanceList} />
     </div>
   );
 });
@@ -191,13 +189,11 @@ StudentList.propTypes = {
 
 export default memo(function LecturerDetailCoursePage() {
   const { courseCode } = useParams();
-
   const [course, setCourse] = useState({});
-  const [showModal, setShowModal] = useState(false);
+  const [showModalAddLink, setShowModalAddLink] = useState(false);
   const [onlineUrl, setOnlineUrl] = useState("");
   const [studentList, setStudentList] = useState([]); // danh sách sinh viên của môn học
   const [scheduleDate, setScheduleDate] = useState([]); // danh sách lịch học của môn học
-
   const [currentDay, setCurrentDay] = useState(formattedDate(new Date()));
   const [activeTab, setActiveTab] = useState(1);
 
@@ -210,7 +206,7 @@ export default memo(function LecturerDetailCoursePage() {
           onlineUrl: onlineUrl,
         });
         if (response?.status === "success") {
-          setShowModal(false);
+          setShowModalAddLink(false);
           setOnlineUrl("");
           setCourse((prev) => ({ ...prev, onlineUrl }));
           alert("Cập nhật thành công!");
@@ -227,7 +223,7 @@ export default memo(function LecturerDetailCoursePage() {
 
   const handleAddLinkOnline = useCallback((e) => {
     e.preventDefault();
-    setShowModal(true);
+    setShowModalAddLink(true);
   }, []);
 
   const getDetailData = async (code) => {
@@ -286,8 +282,10 @@ export default memo(function LecturerDetailCoursePage() {
   // console.log("check lich hoc seted: ", scheduleDate);
   return (
     <LecturerContext.Provider value={values}>
-      <div className="flex flex-col justify-start items-center space-y-6 mt-8">
-        <h1 className="text-2xl text-uit font-bold">Chi tiết môn học</h1>
+      <div className="w-full h-full flex flex-col justify-start items-center space-y-4">
+        <div className="text-lg text-uit font-bold uppercase">
+          Chi tiết môn học
+        </div>
         <div className="flex gap-4 flex-wrap justify-center">
           <button
             onClick={() => setActiveTab(1)}
@@ -317,30 +315,33 @@ export default memo(function LecturerDetailCoursePage() {
             <span className="hidden sm:inline">Danh sách sinh viên</span>
           </button>
         </div>
-        {activeTab === 1 && (
-          <CourseInfo
-            course={course}
-            handleAddLinkOnline={handleAddLinkOnline}
-          />
-        )}
-        {activeTab === 2 && (
-          <ScheduleInfo
-            currentDay={currentDay}
-            setCurrentDay={setCurrentDay}
-            scheduleDate={scheduleDate}
-            // course={course}
-            courseCode={courseCode}
-          />
-        )}
-        {activeTab === 3 && (
-          <StudentList
-            courseCode={courseCode}
-            course={course}
-            studentList={studentList}
-          />
-        )}
+        <div>
+          {activeTab === 1 && (
+            <CourseInfo
+              course={course}
+              handleAddLinkOnline={handleAddLinkOnline}
+            />
+          )}
+          {activeTab === 2 && (
+            <ScheduleInfo
+              currentDay={currentDay}
+              setCurrentDay={setCurrentDay}
+              scheduleDate={scheduleDate}
+              // course={course}
+              courseCode={courseCode}
+            />
+          )}
+          {activeTab === 3 && (
+            <StudentList
+              courseCode={courseCode}
+              course={course}
+              studentList={studentList}
+            />
+          )}
+        </div>
       </div>
-      {showModal && (
+
+      {showModalAddLink && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-2xl border-2 border-gray-300 w-auto text-uit">
             <div className="text-xl font-bold mb-4">Thêm link học Online</div>
@@ -363,7 +364,7 @@ export default memo(function LecturerDetailCoursePage() {
               <div className="flex justify-end">
                 <button
                   type="button"
-                  onClick={() => setShowModal(false)}
+                  onClick={() => setShowModalAddLink(false)}
                   className="mr-4 py-2 px-4 bg-red-500 text-white rounded-lg"
                 >
                   Hủy

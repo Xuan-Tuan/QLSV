@@ -117,155 +117,166 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 md:p-8 w-[95%] md:w-2/3 lg:w-1/2 max-h-[90vh] overflow-y-auto rounded-2xl shadow-2xl transition-all">
-        <h2 className="text-2xl font-bold text-center text-blue-600 mb-6">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
+      <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden max-h-full flex flex-col">
+        <div className="text-uit text-lg uppercase font-bold px-6 py-4 text-center border-b border-gray-200 bg-white shadow-sm">
           Chỉnh sửa môn học
-        </h2>
-        <form onSubmit={handleSubmit}>
-          {/* Room select */}
-          <div className="mb-4">
-            <label className="block mb-1 font-semibold text-gray-700">
-              Phòng học
-            </label>
-            <select
-              name="roomID"
-              value={courseData.roomID || ""}
-              onChange={handleInputCourseChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Chọn phòng</option>
-              {roomList.map((room) => (
-                <option key={room.id} value={room.id}>
-                  {room.nameRoom}
-                </option>
-              ))}
-            </select>
-          </div>
+        </div>
 
-          {/* Lecturer select */}
-          <div className="mb-4">
-            <label className="block mb-1 font-semibold text-gray-700">
-              Giảng viên
-            </label>
-            <select
-              name="lecturerID"
-              value={courseData.lecturerID || ""}
-              onChange={handleInputCourseChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Chọn giảng viên</option>
-              {lecturerList.map((lecturer) => (
-                <option key={lecturer.id} value={lecturer.id}>
-                  {lecturer.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <form
+          onSubmit={handleSubmit}
+          className="p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
+        >
+          {/* Thông tin môn học */}
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Thông tin môn học
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Mã môn học
+                </label>
+                <input
+                  type="text"
+                  name="code"
+                  value={courseData.code}
+                  disabled
+                  className="w-full border border-gray-200 bg-gray-100 rounded-lg px-3 py-2"
+                />
+              </div>
 
-          {/* Course code & name */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Mã môn học
-              </label>
-              <input
-                type="text"
-                name="code"
-                value={courseData.code}
-                disabled
-                className="w-full p-3 border border-gray-200 bg-gray-100 rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Tên môn học
-              </label>
-              <input
-                type="text"
-                name="name"
-                value={courseData.name || ""}
-                onChange={handleInputCourseChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Tên môn học
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={courseData.name || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                />
+              </div>
 
-          {/* Online URL */}
-          <div className="mb-4">
-            <label className="block mb-1 font-semibold text-gray-700">
-              URL học trực tuyến
-            </label>
-            <input
-              type="text"
-              name="onlineURL"
-              value={courseData.onlineURL || ""}
-              onChange={handleInputCourseChange}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Giảng viên
+                </label>
+                <select
+                  name="lecturerID"
+                  value={courseData.lecturerID || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                >
+                  <option value="">-- Chọn giảng viên --</option>
+                  {lecturerList.map((lecturer) => (
+                    <option key={lecturer.id} value={lecturer.id}>
+                      {lecturer.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {/* Thời gian & ngày bắt đầu */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Ngày bắt đầu
-              </label>
-              <input
-                type="date"
-                name="startDay"
-                value={courseData.startDay || ""}
-                disabled
-                className="w-full p-3 border border-gray-200 bg-gray-100 rounded-lg"
-              />
-            </div>
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Thời gian bắt đầu
-              </label>
-              <input
-                type="time"
-                name="startTime"
-                value={courseData.startTime || ""}
-                onChange={handleInputCourseChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-            </div>
-          </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Phòng học
+                </label>
+                <select
+                  name="roomID"
+                  value={courseData.roomID || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                >
+                  <option value="">-- Chọn phòng --</option>
+                  {roomList.map((room) => (
+                    <option key={room.id} value={room.id}>
+                      {room.nameRoom}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-          {/* End time & number of weeks */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Thời gian kết thúc
-              </label>
-              <input
-                type="time"
-                name="endTime"
-                value={courseData.endTime || ""}
-                onChange={handleInputCourseChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  URL học online
+                </label>
+                <input
+                  type="text"
+                  name="onlineURL"
+                  value={courseData.onlineURL || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                />
+              </div>
             </div>
-            <div>
-              <label className="block mb-1 font-semibold text-gray-700">
-                Tuần
-              </label>
-              <input
-                type="number"
-                name="week"
-                value={courseData.week || ""}
-                disabled
-                className="w-full p-3 border border-gray-200 bg-gray-100 rounded-lg"
-              />
-            </div>
-          </div>
+          </section>
 
-          {/* Student select */}
-          <div className="mb-6">
-            <label className="block mb-1 font-semibold text-gray-700">
-              Sinh viên
-            </label>
+          {/* Lịch học */}
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Lịch học
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Ngày bắt đầu
+                </label>
+                <input
+                  type="date"
+                  name="startDay"
+                  value={courseData.startDay || ""}
+                  disabled
+                  className="w-full border border-gray-200 bg-gray-100 rounded-lg px-3 py-2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Thời gian bắt đầu
+                </label>
+                <input
+                  type="time"
+                  name="startTime"
+                  value={courseData.startTime || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Thời gian kết thúc
+                </label>
+                <input
+                  type="time"
+                  name="endTime"
+                  value={courseData.endTime || ""}
+                  onChange={handleInputCourseChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-uit focus:border-uit"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Số tuần
+                </label>
+                <input
+                  type="number"
+                  name="week"
+                  value={courseData.week || ""}
+                  disabled
+                  className="w-full border border-gray-200 bg-gray-100 rounded-lg px-3 py-2"
+                />
+              </div>
+            </div>
+          </section>
+
+          {/* Danh sách sinh viên */}
+          <section className="mb-6 p-4 border border-gray-200 rounded-lg bg-gray-50">
+            <h3 className="text-lg font-semibold text-gray-700 mb-4">
+              Danh sách sinh viên <span className="text-red-500">*</span>
+            </h3>
             <select
               multiple
               value={courseStudents}
@@ -274,7 +285,7 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
                   [...e.target.selectedOptions].map((opt) => opt.value)
                 )
               }
-              className="w-full p-3 border border-gray-300 rounded-lg h-40 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full h-48 border border-gray-300 rounded-lg px-3 py-2 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-blue-100"
             >
               {studentList.map((student) => (
                 <option key={student.id} value={student.id}>
@@ -282,22 +293,22 @@ const ModifyCourseForm = memo(function ModifyCourseForm({
                 </option>
               ))}
             </select>
-          </div>
+          </section>
 
-          {/* Buttons */}
-          <div className="flex justify-end gap-4">
+          {/* Nút hành động */}
+          <div className="flex justify-end gap-4 pt-4 border-t border-gray-200">
             <button
               type="button"
-              className="w-28 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition"
               onClick={closeForm}
+              className="px-4 py-2 rounded-lg bg-gray-500 text-white hover:bg-gray-600"
             >
               Hủy
             </button>
             <button
               type="submit"
-              className="w-28 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              className="px-4 py-2 rounded-lg bg-uit text-white hover:bg-green-700 font-semibold"
             >
-              Xác nhận
+              Cập nhật
             </button>
           </div>
         </form>

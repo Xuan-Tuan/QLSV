@@ -92,37 +92,67 @@ const ModifyStudentForm = memo(function ModifyStudentForm({
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 animate-fadeIn">
+    <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 px-4">
       <form
         onSubmit={handleSubmit}
-        className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg space-y-4"
+        className="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg space-y-5"
       >
-        <h2 className="text-2xl font-bold text-gray-700 text-center">
+        <div className="text-lg font-bold text-center text-uit mb-2 uppercase">
           Chỉnh sửa sinh viên
-        </h2>
-
-        {/* Name */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">Tên</label>
-          <input
-            type="text"
-            name="name"
-            value={studentData.name}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uit"
-          />
         </div>
 
-        {/* Parent */}
+        {/* Các trường nhập */}
+        {[
+          {
+            label: "Họ tên",
+            name: "name",
+            placeholder: "Nhập họ tên",
+            value: studentData.name,
+          },
+          {
+            label: "Địa chỉ",
+            name: "address",
+            placeholder: "Nhập địa chỉ",
+            value: studentData.address,
+          },
+          {
+            label: "Số điện thoại",
+            name: "phoneNumber",
+            placeholder: "Nhập số điện thoại",
+            value: studentData.phoneNumber,
+          },
+          {
+            label: "RFID",
+            name: "RFID",
+            placeholder: "Nhập mã RFID",
+            value: studentData.RFID,
+          },
+        ].map(({ label, name, placeholder, value }) => (
+          <div key={name}>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {label}
+            </label>
+            <input
+              type="text"
+              name={name}
+              placeholder={placeholder}
+              value={value}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-uit transition"
+            />
+          </div>
+        ))}
+
+        {/* Select phụ huynh */}
         <div>
-          <label className="block text-gray-700 font-semibold mb-1">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
             Phụ huynh
           </label>
           <select
             name="parentID"
             value={studentData.parentID}
             onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uit"
+            className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-uit transition"
           >
             <option value="">Chọn phụ huynh</option>
             {parents
@@ -137,58 +167,18 @@ const ModifyStudentForm = memo(function ModifyStudentForm({
           </select>
         </div>
 
-        {/* Address */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">
-            Địa chỉ
-          </label>
-          <input
-            type="text"
-            name="address"
-            value={studentData.address}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uit"
-          />
-        </div>
-
-        {/* Phone */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">
-            Số điện thoại
-          </label>
-          <input
-            type="text"
-            name="phoneNumber"
-            value={studentData.phoneNumber}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uit"
-          />
-        </div>
-
-        {/* RFID */}
-        <div>
-          <label className="block text-gray-700 font-semibold mb-1">RFID</label>
-          <input
-            type="text"
-            name="RFID"
-            value={studentData.RFID}
-            onChange={handleChange}
-            className="w-full border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-uit"
-          />
-        </div>
-
-        {/* Buttons */}
-        <div className="flex justify-end pt-4">
+        {/* Nút hành động */}
+        <div className="flex justify-end gap-3 pt-4">
           <button
             type="button"
             onClick={closeForm}
-            className="bg-gray-400 hover:bg-gray-500 text-white px-4 py-2 rounded mr-2"
+            className="bg-gray-400 text-white px-4 py-2 rounded-lg hover:bg-gray-500 transition"
           >
             Hủy
           </button>
           <button
             type="submit"
-            className="bg-uit hover:bg-green-700 text-white px-4 py-2 rounded"
+            className="bg-uit text-white px-5 py-2 rounded-lg hover:bg-green-700 transition"
           >
             Lưu
           </button>
